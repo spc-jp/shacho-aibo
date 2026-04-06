@@ -47,19 +47,32 @@
     ============================== */
     header {
       background: var(--navy);
-      padding: 14px 18px 12px;
+      padding: 12px 16px;
       flex-shrink: 0;
-      display: flex; align-items: center; gap: 10px;
+      display: flex; align-items: center; justify-content: space-between;
     }
+    .header-left { display: flex; align-items: center; gap: 8px; }
     .header-title { color: #fff; font-size: 19px; font-weight: 900; letter-spacing: 0.05em; }
     .header-badge {
       background: rgba(255,255,255,0.15);
       border: 1px solid rgba(255,255,255,0.3);
       color: #fff; font-size: 10px;
-      padding: 3px 9px; border-radius: 20px;
+      padding: 3px 8px; border-radius: 20px;
       display: flex; align-items: center; gap: 5px;
     }
     .badge-dot { width: 6px; height: 6px; border-radius: 50%; background: #4ade80; }
+
+    .header-right { display: flex; align-items: center; gap: 4px; }
+    .header-btn {
+      background: none; border: none; color: #fff;
+      display: flex; flex-direction: column; align-items: center; gap: 3px;
+      padding: 6px; border-radius: 8px; cursor: pointer;
+      transition: background 0.2s;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .header-btn:active { background: rgba(255,255,255,0.1); }
+    .header-btn svg { width: 22px; height: 22px; }
+    .header-btn span { font-size: 10px; font-weight: 700; }
 
     /* ==============================
        メインコンテンツ
@@ -358,19 +371,10 @@
     ============================== */
     footer {
       flex-shrink: 0; border-top: 1px solid #f3f4f6;
-      padding: 8px 16px 12px;
-      display: flex; align-items: center;
+      padding: 12px 16px;
+      display: flex; justify-content: center; align-items: center;
     }
-    .footer-link {
-      background: none; border: none; cursor: pointer;
-      font-family: inherit; font-size: 11px; color: #c0c8d8;
-      padding: 4px 8px;
-      text-decoration: underline; text-underline-offset: 2px;
-      transition: color 0.15s; -webkit-tap-highlight-color: transparent;
-    }
-    .footer-link:hover, .footer-link:active { color: var(--gray); }
-    .footer-sep { font-size: 11px; color: #d1d5db; }
-    .footer-right { margin-left: auto; font-size: 11px; color: #d1d5db; }
+    .footer-copy { font-size: 11px; color: #d1d5db; letter-spacing: 0.05em; }
 
     /* ==============================
        使用回数バッジ
@@ -511,8 +515,20 @@
 
   <!-- ヘッダー -->
   <header>
-    <span class="header-title">社長の相棒</span>
-    <span class="header-badge"><span class="badge-dot"></span>AI搭載</span>
+    <div class="header-left">
+      <span class="header-title">社長の相棒</span>
+      <span class="header-badge"><span class="badge-dot"></span>AI搭載</span>
+    </div>
+    <div class="header-right">
+      <button class="header-btn" onclick="openModal('helpModal')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+        <span>使い方</span>
+      </button>
+      <button class="header-btn" onclick="openModal('settingsModal')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+        <span>設定</span>
+      </button>
+    </div>
   </header>
 
   <!-- トースト -->
@@ -688,14 +704,7 @@
 
   <!-- ========== フッター ========== -->
   <footer>
-    <button class="footer-link" onclick="openModal('helpModal')">使い方</button>
-    <span class="footer-sep">｜</span>
-    <button class="footer-link" onclick="loadDemo()">デモデータ</button>
-    <span class="footer-sep">｜</span>
-    <button class="footer-link" onclick="clearAll()">クリア</button>
-    <span class="footer-sep">｜</span>
-    <button class="footer-link" onclick="openModal('settingsModal')">設定</button>
-    <span class="footer-right">SPC</span>
+    <span class="footer-copy">Developed by SPC</span>
   </footer>
 
 </div><!-- /.app -->
@@ -785,7 +794,13 @@
       </a>
     </div>
 
-    <button class="modal-close" onclick="saveSettings()">保存して閉じる</button>
+    <div style="margin-top: 32px; margin-bottom: 24px; text-align: center; display: flex; flex-direction: column; gap: 14px; align-items: center;">
+      <button onclick="loadDemo(); closeModal('settingsModal')" style="background:none; border:none; border-bottom:1px solid #93c5fd; color:#3b82f6; font-size:13px; padding-bottom:2px; cursor:pointer;">デモデータを入れる</button>
+      <button onclick="if(confirm('本当に入力内容をクリアしますか？\n※この操作は元に戻せません。')) { clearAll(); closeModal('settingsModal'); }" style="background:none; border:none; border-bottom:1px solid #d1d5db; color:#9ca3af; font-size:13px; padding-bottom:2px; cursor:pointer;">デモデータをクリア</button>
+      <p style="font-size:11px; color:#9ca3af; margin-top: 4px;">※お客様に内容をわかりやすく説明するための機能です</p>
+    </div>
+
+    <button class="modal-close" onclick="saveSettings()" style="margin-top: 0;">保存して閉じる</button>
   </div>
 </div>
 
@@ -831,6 +846,7 @@ let recognition   = null;
 let isRecording   = false;
 let finalText     = '';
 let interimText   = '';
+let restartTimer  = null;   // 追加：再起動用のタイマー
 
 /* ==============================
    起動時処理
@@ -878,16 +894,31 @@ function initSpeech() {
   };
 
   recognition.onend = () => {
-    if (isRecording) { try { recognition.start(); } catch(err) { stopMic(); } }
+    // iPhone等で勝手に止まった場合、少し待ってから再起動を試みる
+    if (isRecording) {
+      restartTimer = setTimeout(() => {
+        if (isRecording) {
+          try { 
+            recognition.start(); 
+          } catch(err) { 
+            // iOSの制限等で再起動に失敗した場合は安全にUIを停止状態に戻す
+            stopMicUI();
+            showToast('無音が長かったためマイクを一時停止しました');
+          }
+        }
+      }, 400); // 400msの遅延を入れることでiPhoneの連続再起動エラーを回避
+    }
   };
 
   recognition.onerror = (e) => {
+    if (e.error === 'no-speech') return; // 無音エラーの場合はonendで再起動させるため無視
+    
     const m = e.error==='not-allowed'
       ? 'マイクへのアクセスが許可されていません。ブラウザの設定をご確認ください。'
       : '音声を検出できませんでした。もう一度お試しください。';
     document.getElementById('err1').textContent = m;
     document.getElementById('err1').classList.add('show');
-    stopMic();
+    stopMicUI();
   };
 }
 
@@ -897,20 +928,27 @@ function toggleMic() {
 }
 
 function startMic() {
-  finalText=''; interimText='';
-  document.getElementById('consultText').value='';
+  // 既存のテキストを保持して、続きから話せるようにする
+  finalText = document.getElementById('consultText').value; 
+  interimText = '';
   document.getElementById('err1').classList.remove('show');
-  isRecording=true;
+  isRecording = true;
   document.getElementById('micBtn').classList.add('recording');
   document.getElementById('micWrap').classList.add('recording');
   document.getElementById('micLabel').textContent='停止する';
   document.getElementById('micStatus').textContent='録音中… もう一度押すと完了';
-  try { recognition.start(); } catch(e){ stopMic(); }
+  try { recognition.start(); } catch(e){ stopMicUI(); }
 }
 
 function stopMic() {
-  isRecording=false;
+  isRecording = false;
+  if (restartTimer) clearTimeout(restartTimer);
   try { recognition.stop(); } catch(e){}
+  stopMicUI();
+}
+
+function stopMicUI() {
+  isRecording = false;
   document.getElementById('micBtn').classList.remove('recording');
   document.getElementById('micWrap').classList.remove('recording');
   document.getElementById('micLabel').textContent='押して話す';
