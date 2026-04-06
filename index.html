@@ -4,6 +4,19 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
   <title>社長の相棒</title>
+  
+  <!-- Favicon & Apple Touch Icon -->
+  <link rel="icon" href="https://spc-jp.github.io/shacho-aibo/favicon.png">
+  <link rel="apple-touch-icon" href="https://spc-jp.github.io/shacho-aibo/favicon.png">
+  
+  <!-- OGP (SNSシェア時の設定) -->
+  <meta property="og:title" content="社長の相棒">
+  <meta property="og:description" content="声で相談、数字を確認、社員をねぎらう。機械が苦手な社長のためのAI相棒アプリです。">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://spc-jp.github.io/shacho-aibo/">
+  <meta property="og:image" content="https://spc-jp.github.io/shacho-aibo/ogp.png">
+  <meta name="twitter:card" content="summary_large_image">
+
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700;900&display=swap" rel="stylesheet">
   <style>
@@ -12,17 +25,21 @@
     ============================== */
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     :root {
-      --navy:   #1b3060;
-      --navy2:  #243f80;
-      --gold:   #d0a900;
-      --gold2:  #f5cc00;
+      /* 提供画像に基づく金系グラデーション・配色設定 */
+      --main-gold:   #D0A900;
+      --accent-gold: #C39000;
+      --light-gold:  #FFF9E6;
+      --black:       #000000;
+      
       --red:    #dc2626;
       --green:  #06c755;
       --gray:   #6b7280;
       --border: #e5e7eb;
-      --bg:     #f3f6fb;
+      --bg:     #f9f8f6; /* 温かみのあるオフホワイト */
       --white:  #ffffff;
       --text:   #1f2937;
+      
+      --grad-gold: linear-gradient(135deg, #FFF9E6 0%, #D0A900 45%, #C39000 100%);
     }
     body {
       font-family: "Noto Sans JP", "Hiragino Sans", Meiryo, sans-serif;
@@ -46,31 +63,32 @@
        ヘッダー
     ============================== */
     header {
-      background: var(--navy);
+      background: var(--black);
+      border-bottom: 2px solid var(--main-gold);
       padding: 12px 16px;
       flex-shrink: 0;
       display: flex; align-items: center; justify-content: space-between;
     }
     .header-left { display: flex; align-items: center; gap: 8px; }
-    .header-title { color: #fff; font-size: 19px; font-weight: 900; letter-spacing: 0.05em; }
+    .header-title { color: var(--main-gold); font-size: 19px; font-weight: 900; letter-spacing: 0.05em; }
     .header-badge {
-      background: rgba(255,255,255,0.15);
-      border: 1px solid rgba(255,255,255,0.3);
-      color: #fff; font-size: 10px;
+      background: rgba(208, 169, 0, 0.15);
+      border: 1px solid rgba(208, 169, 0, 0.4);
+      color: var(--main-gold); font-size: 10px;
       padding: 3px 8px; border-radius: 20px;
       display: flex; align-items: center; gap: 5px;
     }
-    .badge-dot { width: 6px; height: 6px; border-radius: 50%; background: #4ade80; }
+    .badge-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--main-gold); }
 
     .header-right { display: flex; align-items: center; gap: 4px; }
     .header-btn {
-      background: none; border: none; color: #fff;
+      background: none; border: none; color: var(--main-gold);
       display: flex; flex-direction: column; align-items: center; gap: 3px;
       padding: 6px; border-radius: 8px; cursor: pointer;
       transition: background 0.2s;
       -webkit-tap-highlight-color: transparent;
     }
-    .header-btn:active { background: rgba(255,255,255,0.1); }
+    .header-btn:active { background: rgba(208, 169, 0, 0.15); }
     .header-btn svg { width: 22px; height: 22px; }
     .header-btn span { font-size: 10px; font-weight: 700; }
 
@@ -86,7 +104,7 @@
     ============================== */
     .section-head {
       text-align: center;
-      padding-bottom: 36px; /* マイクボタンとの間隔をさらに広げました */
+      padding-bottom: 36px;
     }
     .section-head h2 { font-size: 20px; font-weight: 900; color: var(--text); }
     .section-head p  { font-size: 13px; color: var(--gray); margin-top: 5px; line-height: 1.7; }
@@ -106,6 +124,7 @@
       margin-bottom: 10px;
       display: flex; align-items: center; gap: 6px;
     }
+    .card-label svg { color: var(--accent-gold); }
 
     /* ==============================
        マイクボタン（タブ1）
@@ -113,12 +132,12 @@
     .mic-area {
       display: flex; flex-direction: column;
       align-items: center; gap: 14px;
-      padding: 16px 0 10px; /* 上側の余白を少し増やしました */
+      padding: 16px 0 10px;
     }
     .mic-wrap { position: relative; display: flex; align-items: center; justify-content: center; }
     .ripple {
       position: absolute; border-radius: 50%;
-      background: rgba(220,38,38,0.15);
+      background: rgba(208, 169, 0, 0.25);
       pointer-events: none;
     }
     .ripple-1 { width: 160px; height: 160px; }
@@ -132,16 +151,16 @@
     .mic-btn {
       position: relative; z-index: 1;
       width: 120px; height: 120px; border-radius: 50%; border: none;
-      background: var(--navy); color: #fff;
+      background: var(--grad-gold); color: var(--black);
       display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px;
-      box-shadow: 0 6px 24px rgba(27,48,96,0.3);
+      box-shadow: 0 6px 24px rgba(208, 169, 0, 0.4);
       transition: transform 0.15s, background 0.2s;
       cursor: pointer; -webkit-tap-highlight-color: transparent;
     }
     .mic-btn:active { transform: scale(0.94); }
-    .mic-btn.recording { background: var(--red); box-shadow: 0 6px 24px rgba(220,38,38,0.35); }
+    .mic-btn.recording { background: var(--red); color: var(--white); box-shadow: 0 6px 24px rgba(220,38,38,0.35); }
     .mic-btn svg { width: 40px; height: 40px; }
-    .mic-label { font-size: 12px; font-weight: 700; }
+    .mic-label { font-size: 12px; font-weight: 900; }
     .recording .mic-btn svg { animation: ms 0.5s ease infinite alternate; }
     @keyframes ms { from { transform: scale(1); } to { transform: scale(1.15); } }
 
@@ -174,7 +193,7 @@
       outline: none;
       resize: none;
     }
-    textarea:focus, input:focus { border-color: var(--navy); background: #fff; }
+    textarea:focus, input:focus { border-color: var(--accent-gold); background: #fff; }
     textarea { min-height: 90px; line-height: 1.7; }
 
     .input-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
@@ -207,10 +226,10 @@
     .btn:active { transform: scale(0.97); }
     .btn svg { width: 20px; height: 20px; flex-shrink: 0; }
 
-    .btn-primary { background: var(--navy); color: #fff; box-shadow: 0 4px 16px rgba(27,48,96,0.25); }
-    .btn-gold    { background: var(--gold);  color: #fff; box-shadow: 0 4px 16px rgba(208,169,0,0.3); }
+    .btn-primary { background: var(--black); color: var(--main-gold); border: 1px solid var(--accent-gold); box-shadow: 0 4px 16px rgba(0,0,0,0.25); }
+    .btn-gold    { background: var(--grad-gold);  color: var(--black); box-shadow: 0 4px 16px rgba(208,169,0,0.3); }
     .btn-line    { background: #06c755;      color: #fff; box-shadow: 0 4px 14px rgba(6,199,85,0.28); }
-    .btn-copy    { background: var(--white);  color: var(--navy); border: 2px solid var(--navy); }
+    .btn-copy    { background: var(--white);  color: var(--black); border: 2px solid var(--black); }
     .btn-sub     { background: #f1f5f9; color: var(--gray); font-size: 14px; }
     .btn-row     { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
 
@@ -225,13 +244,14 @@
       transition: border-color 0.15s, background 0.15s;
       -webkit-tap-highlight-color: transparent;
     }
-    .emp-card.selected { border-color: var(--navy); background: #eff4ff; }
+    .emp-card.selected { border-color: var(--main-gold); background: var(--light-gold); }
     .emp-info { display: flex; align-items: center; gap: 12px; }
     .emp-avatar {
       width: 44px; height: 44px; border-radius: 50%;
       background: #e0e7f3; display: flex; align-items: center; justify-content: center;
       font-size: 18px;
     }
+    .emp-card.selected .emp-avatar { background: var(--white); border: 1px solid var(--main-gold); }
     .emp-name { font-size: 16px; font-weight: 700; color: var(--text); }
     .emp-role { font-size: 12px; color: var(--gray); margin-top: 1px; }
     .emp-check {
@@ -241,9 +261,9 @@
       transition: all 0.15s;
     }
     .emp-card.selected .emp-check {
-      background: var(--navy); border-color: var(--navy);
+      background: var(--main-gold); border-color: var(--main-gold);
     }
-    .emp-card.selected .emp-check svg { display: block; }
+    .emp-card.selected .emp-check svg { display: block; color: var(--black); }
     .emp-check svg { display: none; width: 14px; height: 14px; color: #fff; }
 
     /* 社員なし案内 */
@@ -266,7 +286,7 @@
     }
     .result-card.green  { background: #f0fdf4; border-left: 5px solid #16a34a; }
     .result-card.yellow { background: #fffbeb; border-left: 5px solid #d97706; }
-    .result-card.navy   { background: #eff4ff; border-left: 5px solid var(--navy); }
+    .result-card.navy   { background: var(--light-gold); border-left: 5px solid var(--main-gold); }
     .result-card.plain  { background: #f8fafc; border: 1.5px solid var(--border); }
     .result-head {
       font-size: 13px; font-weight: 700; margin-bottom: 8px;
@@ -279,8 +299,9 @@
     ============================== */
     .result-card-first {
       border-radius: 18px; padding: 22px 20px;
-      background: linear-gradient(135deg, #1b3060 0%, #2d4f9e 100%);
-      box-shadow: 0 10px 36px rgba(27,48,96,0.38);
+      background: linear-gradient(135deg, #222222 0%, #000000 100%);
+      border: 1px solid var(--accent-gold);
+      box-shadow: 0 10px 36px rgba(0,0,0,0.3);
       animation: popIn 0.55s cubic-bezier(0.34,1.56,0.64,1);
     }
     @keyframes popIn {
@@ -288,7 +309,7 @@
       100% { opacity: 1; transform: scale(1)    translateY(0); }
     }
     .result-card-first .result-head {
-      font-size: 11px; font-weight: 700; color: rgba(255,255,255,0.65);
+      font-size: 11px; font-weight: 700; color: var(--main-gold);
       letter-spacing: 0.08em; margin-bottom: 10px;
     }
     .result-card-first .result-body {
@@ -297,7 +318,7 @@
     .first-label-dot {
       display: inline-block;
       width: 7px; height: 7px; border-radius: 50%;
-      background: var(--gold2); margin-right: 6px;
+      background: var(--accent-gold); margin-right: 6px;
       animation: dotPulse 1.4s ease infinite;
       vertical-align: middle;
     }
@@ -317,7 +338,7 @@
 
     /* メッセージプレビュー */
     .msg-preview {
-      background: #fff9e6; border: 2px solid var(--gold);
+      background: var(--light-gold); border: 2px solid var(--main-gold);
       border-radius: 16px; padding: 18px;
       font-size: 16px; line-height: 1.85; color: var(--text);
       min-height: 80px;
@@ -333,7 +354,7 @@
     .spinner {
       width: 40px; height: 40px; border-radius: 50%;
       border: 4px solid #e5e7eb;
-      border-top-color: var(--navy);
+      border-top-color: var(--black);
       animation: spin 0.8s linear infinite;
     }
     @keyframes spin { to { transform: rotate(360deg); } }
@@ -355,13 +376,13 @@
       -webkit-tap-highlight-color: transparent;
       position: relative;
     }
-    .nav-btn.active { color: var(--navy); }
+    .nav-btn.active { color: var(--accent-gold); }
     .nav-btn:not(.active) { color: #9ca3af; }
     .nav-btn svg { width: 26px; height: 26px; }
     .nav-btn span { font-size: 10px; font-weight: 700; }
     .nav-indicator {
       position: absolute; bottom: 0; left: 20%; right: 20%;
-      height: 3px; background: var(--navy); border-radius: 3px 3px 0 0;
+      height: 3px; background: var(--accent-gold); border-radius: 3px 3px 0 0;
       opacity: 0; transition: opacity 0.15s;
     }
     .nav-btn.active .nav-indicator { opacity: 1; }
@@ -383,7 +404,7 @@
       text-align: center; font-size: 12px; color: var(--gray);
       background: #f3f6fb; border-radius: 8px; padding: 8px;
     }
-    .use-badge span { font-weight: 700; color: var(--navy); }
+    .use-badge span { font-weight: 700; color: var(--accent-gold); }
 
     /* ==============================
        トースト
@@ -391,7 +412,8 @@
     .toast {
       position: fixed; top: 68px; left: 50%;
       transform: translateX(-50%) translateY(-12px);
-      background: #1f2937; color: #fff;
+      background: var(--black); color: var(--main-gold);
+      border: 1px solid var(--accent-gold);
       padding: 11px 20px; border-radius: 40px;
       font-size: 14px; font-weight: 700;
       display: flex; align-items: center; gap: 8px;
@@ -406,7 +428,7 @@
     ============================== */
     .modal-overlay {
       display: none; position: fixed; inset: 0;
-      background: rgba(0,0,0,0.5); z-index: 400;
+      background: rgba(0,0,0,0.6); z-index: 400;
       justify-content: center; align-items: flex-end;
     }
     .modal-overlay.show { display: flex; }
@@ -424,11 +446,12 @@
       width: 38px; height: 4px; background: #d1d5db;
       border-radius: 4px; margin: 0 auto 18px;
     }
-    .modal-title { font-size: 18px; font-weight: 900; color: var(--text); margin-bottom: 16px; }
+    .modal-title { font-size: 18px; font-weight: 900; color: var(--black); margin-bottom: 16px; }
     .modal-close {
       width: 100%; margin-top: 20px; padding: 15px;
       border-radius: 14px; border: none;
-      background: var(--navy); color: #fff;
+      background: var(--black); color: var(--main-gold);
+      border: 1px solid var(--accent-gold);
       font-family: inherit; font-size: 15px; font-weight: 700;
       cursor: pointer; -webkit-tap-highlight-color: transparent;
     }
@@ -462,12 +485,12 @@
     .help-section { margin-bottom: 20px; }
     .help-head {
       display: flex; align-items: center; gap: 8px;
-      font-size: 14px; font-weight: 700; color: var(--navy);
-      border-bottom: 2px solid #e0e7f3;
+      font-size: 14px; font-weight: 700; color: var(--black);
+      border-bottom: 2px solid var(--light-gold);
       padding-bottom: 6px; margin-bottom: 10px;
     }
     .step-no {
-      background: var(--navy); color: #fff;
+      background: var(--main-gold); color: var(--black);
       width: 22px; height: 22px; border-radius: 50%;
       font-size: 11px; font-weight: 900;
       display: flex; align-items: center; justify-content: center; flex-shrink: 0;
@@ -478,7 +501,7 @@
       font-size: 13px; color: #374151; line-height: 1.75;
     }
     .help-list li::before {
-      content: "✔"; color: var(--navy); font-weight: 700; flex-shrink: 0; margin-top: 1px;
+      content: "✔"; color: var(--main-gold); font-weight: 700; flex-shrink: 0; margin-top: 1px;
     }
 
     /* パスワードモーダル */
@@ -489,7 +512,7 @@
     .btn-pass { white-space: nowrap; width: auto; padding: 14px 20px; flex-shrink: 0; }
     .pass-link {
       display: block; text-align: center; margin-top: 12px;
-      font-size: 12px; color: var(--navy); text-decoration: underline;
+      font-size: 12px; color: var(--accent-gold); text-decoration: underline;
       cursor: pointer;
     }
 
@@ -795,7 +818,7 @@
     </div>
 
     <div style="margin-top: 32px; margin-bottom: 24px; text-align: center; display: flex; flex-direction: column; gap: 14px; align-items: center;">
-      <button onclick="loadDemo(); closeModal('settingsModal')" style="background:none; border:none; border-bottom:1px solid #93c5fd; color:#3b82f6; font-size:13px; padding-bottom:2px; cursor:pointer;">デモデータを入れる</button>
+      <button onclick="loadDemo(); closeModal('settingsModal')" style="background:none; border:none; border-bottom:1px solid var(--accent-gold); color:var(--accent-gold); font-size:13px; padding-bottom:2px; cursor:pointer;">デモデータを入れる</button>
       <button onclick="if(confirm('本当に入力内容をクリアしますか？\n※この操作は元に戻せません。')) { clearAll(); closeModal('settingsModal'); }" style="background:none; border:none; border-bottom:1px solid #d1d5db; color:#9ca3af; font-size:13px; padding-bottom:2px; cursor:pointer;">デモデータをクリア</button>
       <p style="font-size:11px; color:#9ca3af; margin-top: 4px;">※お客様に内容をわかりやすく説明するための機能です</p>
     </div>
@@ -819,7 +842,7 @@
     <a class="pass-link" href="https://spc-jp.github.io/thanks-pages/" target="_blank">
       パスワードの取得はこちら →
     </a>
-    <button class="modal-close" style="background:#f1f5f9;color:var(--gray);margin-top:12px" onclick="closeModal('passModal')">あとで</button>
+    <button class="modal-close" style="background:#f1f5f9;color:var(--gray);margin-top:12px;border:none;" onclick="closeModal('passModal')">あとで</button>
   </div>
 </div>
 
@@ -827,7 +850,7 @@
 <div class="modal-overlay" id="adminModal" onclick="closeModalOutside(event,'adminModal')">
   <div class="modal-sheet">
     <div class="modal-handle"></div>
-    <p class="modal-title" style="color:var(--navy2)">🛠️ 販売店専用設定</p>
+    <p class="modal-title" style="color:var(--black)">🛠️ 販売店専用設定</p>
 
     <div class="setting-group" style="margin-top: 20px;">
       <label class="setting-label">LINE Notify トークン</label>
