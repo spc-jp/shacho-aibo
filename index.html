@@ -2,511 +2,1330 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
   <title>社長の相棒</title>
-  
-  <!-- Tailwind CSS (スタイリング用) -->
-  <script src="https://cdn.tailwindcss.com"></script>
-  
-  <!-- React & ReactDOM -->
-  <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
-  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
-  
-  <!-- Babel (ブラウザ内でReactコードを翻訳するため) -->
-  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700;900&display=swap" rel="stylesheet">
   <style>
-    body {
-      font-family: "Helvetica Neue", Arial, "Hiragino Kaku Gothic ProN", "Hiragino Sans", Meiryo, sans-serif;
-      margin: 0;
-      padding: 0;
-      background-color: #f3f4f6;
+    /* ==============================
+       変数・リセット
+    ============================== */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --navy:   #1b3060;
+      --navy2:  #243f80;
+      --gold:   #d0a900;
+      --gold2:  #f5cc00;
+      --red:    #dc2626;
+      --green:  #06c755;
+      --gray:   #6b7280;
+      --border: #e5e7eb;
+      --bg:     #f3f6fb;
+      --white:  #ffffff;
+      --text:   #1f2937;
     }
+    body {
+      font-family: "Noto Sans JP", "Hiragino Sans", Meiryo, sans-serif;
+      background: var(--bg);
+      min-height: 100dvh;
+      display: flex; justify-content: center;
+    }
+
+    /* ==============================
+       アプリ枠
+    ============================== */
+    .app {
+      width: 100%; max-width: 430px;
+      min-height: 100dvh;
+      background: var(--white);
+      display: flex; flex-direction: column;
+      position: relative;
+    }
+
+    /* ==============================
+       ヘッダー
+    ============================== */
+    header {
+      background: var(--navy);
+      padding: 14px 18px 12px;
+      flex-shrink: 0;
+      display: flex; align-items: center; gap: 10px;
+    }
+    .header-title { color: #fff; font-size: 19px; font-weight: 900; letter-spacing: 0.05em; }
+    .header-badge {
+      background: rgba(255,255,255,0.15);
+      border: 1px solid rgba(255,255,255,0.3);
+      color: #fff; font-size: 10px;
+      padding: 3px 9px; border-radius: 20px;
+      display: flex; align-items: center; gap: 5px;
+    }
+    .badge-dot { width: 6px; height: 6px; border-radius: 50%; background: #4ade80; }
+
+    /* ==============================
+       メインコンテンツ
+    ============================== */
+    main { flex: 1; overflow-y: auto; padding: 20px 18px 16px; }
+    .tab-content { display: none; flex-direction: column; gap: 18px; }
+    .tab-content.active { display: flex; }
+
+    /* ==============================
+       セクション見出し
+    ============================== */
+    .section-head {
+      text-align: center;
+      padding-bottom: 4px;
+    }
+    .section-head h2 { font-size: 20px; font-weight: 900; color: var(--text); }
+    .section-head p  { font-size: 13px; color: var(--gray); margin-top: 5px; line-height: 1.7; }
+
+    /* ==============================
+       カード
+    ============================== */
+    .card {
+      background: var(--white);
+      border: 1.5px solid var(--border);
+      border-radius: 16px;
+      padding: 18px;
+    }
+    .card-label {
+      font-size: 12px; font-weight: 700;
+      color: var(--gray); letter-spacing: 0.06em;
+      margin-bottom: 10px;
+      display: flex; align-items: center; gap: 6px;
+    }
+
+    /* ==============================
+       マイクボタン（タブ1）
+    ============================== */
+    .mic-area {
+      display: flex; flex-direction: column;
+      align-items: center; gap: 14px;
+      padding: 10px 0;
+    }
+    .mic-wrap { position: relative; display: flex; align-items: center; justify-content: center; }
+    .ripple {
+      position: absolute; border-radius: 50%;
+      background: rgba(220,38,38,0.15);
+      pointer-events: none;
+    }
+    .ripple-1 { width: 160px; height: 160px; }
+    .ripple-2 { width: 195px; height: 195px; }
+    .recording .ripple-1 { animation: rp 1.6s ease-out infinite; }
+    .recording .ripple-2 { animation: rp 1.6s ease-out infinite 0.4s; }
+    @keyframes rp {
+      0%   { transform: scale(0.85); opacity: 0.6; }
+      100% { transform: scale(1.1);  opacity: 0; }
+    }
+    .mic-btn {
+      position: relative; z-index: 1;
+      width: 120px; height: 120px; border-radius: 50%; border: none;
+      background: var(--navy); color: #fff;
+      display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px;
+      box-shadow: 0 6px 24px rgba(27,48,96,0.3);
+      transition: transform 0.15s, background 0.2s;
+      cursor: pointer; -webkit-tap-highlight-color: transparent;
+    }
+    .mic-btn:active { transform: scale(0.94); }
+    .mic-btn.recording { background: var(--red); box-shadow: 0 6px 24px rgba(220,38,38,0.35); }
+    .mic-btn svg { width: 40px; height: 40px; }
+    .mic-label { font-size: 12px; font-weight: 700; }
+    .recording .mic-btn svg { animation: ms 0.5s ease infinite alternate; }
+    @keyframes ms { from { transform: scale(1); } to { transform: scale(1.15); } }
+
+    .mic-status {
+      font-size: 14px; font-weight: 700; color: var(--red);
+      min-height: 20px; text-align: center;
+    }
+    .mic-divider {
+      display: flex; align-items: center; gap: 10px;
+      color: var(--gray); font-size: 12px; width: 100%;
+    }
+    .mic-divider::before,
+    .mic-divider::after {
+      content: ''; flex: 1; height: 1px; background: var(--border);
+    }
+
+    /* ==============================
+       フォームパーツ
+    ============================== */
+    textarea, input[type="text"], input[type="number"] {
+      width: 100%;
+      font-family: inherit;
+      font-size: 15px;
+      color: var(--text);
+      background: #f8fafc;
+      border: 2px solid var(--border);
+      border-radius: 12px;
+      padding: 14px;
+      transition: border-color 0.2s;
+      outline: none;
+      resize: none;
+    }
+    textarea:focus, input:focus { border-color: var(--navy); background: #fff; }
+    textarea { min-height: 90px; line-height: 1.7; }
+
+    .input-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .input-group { display: flex; flex-direction: column; gap: 6px; }
+    .input-group label {
+      font-size: 12px; font-weight: 700; color: var(--gray);
+      display: flex; align-items: center; gap: 4px;
+    }
+
+    /* 数字インプットのコンマ表示 */
+    .yen-wrap { position: relative; }
+    .yen-wrap input { padding-right: 36px; }
+    .yen-unit {
+      position: absolute; right: 12px; top: 50%;
+      transform: translateY(-50%);
+      font-size: 13px; color: var(--gray); font-weight: 700;
+      pointer-events: none;
+    }
+
+    /* ==============================
+       ボタン
+    ============================== */
+    .btn {
+      width: 100%; padding: 15px; border-radius: 14px; border: none;
+      font-family: inherit; font-size: 16px; font-weight: 700;
+      display: flex; align-items: center; justify-content: center; gap: 10px;
+      cursor: pointer; transition: transform 0.12s;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .btn:active { transform: scale(0.97); }
+    .btn svg { width: 20px; height: 20px; flex-shrink: 0; }
+
+    .btn-primary { background: var(--navy); color: #fff; box-shadow: 0 4px 16px rgba(27,48,96,0.25); }
+    .btn-gold    { background: var(--gold);  color: #fff; box-shadow: 0 4px 16px rgba(208,169,0,0.3); }
+    .btn-line    { background: #06c755;      color: #fff; box-shadow: 0 4px 14px rgba(6,199,85,0.28); }
+    .btn-copy    { background: var(--white);  color: var(--navy); border: 2px solid var(--navy); }
+    .btn-sub     { background: #f1f5f9; color: var(--gray); font-size: 14px; }
+    .btn-row     { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+
+    /* ==============================
+       社員カード（タブ3）
+    ============================== */
+    .emp-list { display: flex; flex-direction: column; gap: 10px; }
+    .emp-card {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 14px 16px; border-radius: 14px;
+      border: 2px solid var(--border); cursor: pointer;
+      transition: border-color 0.15s, background 0.15s;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .emp-card.selected { border-color: var(--navy); background: #eff4ff; }
+    .emp-info { display: flex; align-items: center; gap: 12px; }
+    .emp-avatar {
+      width: 44px; height: 44px; border-radius: 50%;
+      background: #e0e7f3; display: flex; align-items: center; justify-content: center;
+      font-size: 18px;
+    }
+    .emp-name { font-size: 16px; font-weight: 700; color: var(--text); }
+    .emp-role { font-size: 12px; color: var(--gray); margin-top: 1px; }
+    .emp-check {
+      width: 24px; height: 24px; border-radius: 50%;
+      border: 2px solid var(--border);
+      display: flex; align-items: center; justify-content: center;
+      transition: all 0.15s;
+    }
+    .emp-card.selected .emp-check {
+      background: var(--navy); border-color: var(--navy);
+    }
+    .emp-card.selected .emp-check svg { display: block; }
+    .emp-check svg { display: none; width: 14px; height: 14px; color: #fff; }
+
+    /* 社員なし案内 */
+    .emp-empty {
+      text-align: center; padding: 24px;
+      color: var(--gray); font-size: 14px; line-height: 1.8;
+    }
+
+    /* ==============================
+       AI返答カード
+    ============================== */
+    .result-area { display: flex; flex-direction: column; gap: 12px; }
+    .result-card {
+      border-radius: 16px; padding: 16px;
+      animation: fadeUp 0.4s ease;
+    }
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(10px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .result-card.green  { background: #f0fdf4; border-left: 5px solid #16a34a; }
+    .result-card.yellow { background: #fffbeb; border-left: 5px solid #d97706; }
+    .result-card.navy   { background: #eff4ff; border-left: 5px solid var(--navy); }
+    .result-card.plain  { background: #f8fafc; border: 1.5px solid var(--border); }
+    .result-head {
+      font-size: 13px; font-weight: 700; margin-bottom: 8px;
+      display: flex; align-items: center; gap: 6px;
+    }
+    .result-body { font-size: 15px; line-height: 1.8; color: var(--text); }
+
+    /* メッセージプレビュー */
+    .msg-preview {
+      background: #fff9e6; border: 2px solid var(--gold);
+      border-radius: 16px; padding: 18px;
+      font-size: 16px; line-height: 1.85; color: var(--text);
+      min-height: 80px;
+    }
+
+    /* ==============================
+       ローディング
+    ============================== */
+    .loading {
+      display: flex; flex-direction: column; align-items: center;
+      gap: 14px; padding: 24px 0;
+    }
+    .spinner {
+      width: 40px; height: 40px; border-radius: 50%;
+      border: 4px solid #e5e7eb;
+      border-top-color: var(--navy);
+      animation: spin 0.8s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .loading p { font-size: 14px; color: var(--gray); font-weight: 700; }
+
+    /* ==============================
+       底部ナビ
+    ============================== */
+    nav {
+      flex-shrink: 0;
+      border-top: 2px solid #f0f0f0;
+      display: flex;
+      background: var(--white);
+    }
+    .nav-btn {
+      flex: 1; padding: 10px 4px 8px; border: none; background: none;
+      display: flex; flex-direction: column; align-items: center; gap: 4px;
+      cursor: pointer; transition: background 0.15s;
+      -webkit-tap-highlight-color: transparent;
+      position: relative;
+    }
+    .nav-btn.active { color: var(--navy); }
+    .nav-btn:not(.active) { color: #9ca3af; }
+    .nav-btn svg { width: 26px; height: 26px; }
+    .nav-btn span { font-size: 10px; font-weight: 700; }
+    .nav-indicator {
+      position: absolute; bottom: 0; left: 20%; right: 20%;
+      height: 3px; background: var(--navy); border-radius: 3px 3px 0 0;
+      opacity: 0; transition: opacity 0.15s;
+    }
+    .nav-btn.active .nav-indicator { opacity: 1; }
+
+    /* ==============================
+       フッター
+    ============================== */
+    footer {
+      flex-shrink: 0; border-top: 1px solid #f3f4f6;
+      padding: 8px 16px 12px;
+      display: flex; align-items: center;
+    }
+    .footer-link {
+      background: none; border: none; cursor: pointer;
+      font-family: inherit; font-size: 11px; color: #c0c8d8;
+      padding: 4px 8px;
+      text-decoration: underline; text-underline-offset: 2px;
+      transition: color 0.15s; -webkit-tap-highlight-color: transparent;
+    }
+    .footer-link:hover, .footer-link:active { color: var(--gray); }
+    .footer-sep { font-size: 11px; color: #d1d5db; }
+    .footer-right { margin-left: auto; font-size: 11px; color: #d1d5db; }
+
+    /* ==============================
+       使用回数バッジ
+    ============================== */
+    .use-badge {
+      text-align: center; font-size: 12px; color: var(--gray);
+      background: #f3f6fb; border-radius: 8px; padding: 8px;
+    }
+    .use-badge span { font-weight: 700; color: var(--navy); }
+
+    /* ==============================
+       トースト
+    ============================== */
+    .toast {
+      position: fixed; top: 68px; left: 50%;
+      transform: translateX(-50%) translateY(-12px);
+      background: #1f2937; color: #fff;
+      padding: 11px 20px; border-radius: 40px;
+      font-size: 14px; font-weight: 700;
+      display: flex; align-items: center; gap: 8px;
+      white-space: nowrap; box-shadow: 0 6px 20px rgba(0,0,0,0.2);
+      opacity: 0; transition: opacity 0.3s, transform 0.3s;
+      z-index: 500; pointer-events: none;
+    }
+    .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+    /* ==============================
+       モーダル共通
+    ============================== */
+    .modal-overlay {
+      display: none; position: fixed; inset: 0;
+      background: rgba(0,0,0,0.5); z-index: 400;
+      justify-content: center; align-items: flex-end;
+    }
+    .modal-overlay.show { display: flex; }
+    .modal-sheet {
+      background: var(--white); width: 100%; max-width: 430px;
+      border-radius: 22px 22px 0 0; padding: 24px 20px 40px;
+      max-height: 90dvh; overflow-y: auto;
+      animation: slideUp 0.3s ease;
+    }
+    @keyframes slideUp {
+      from { transform: translateY(50px); opacity: 0; }
+      to   { transform: translateY(0); opacity: 1; }
+    }
+    .modal-handle {
+      width: 38px; height: 4px; background: #d1d5db;
+      border-radius: 4px; margin: 0 auto 18px;
+    }
+    .modal-title { font-size: 18px; font-weight: 900; color: var(--text); margin-bottom: 16px; }
+    .modal-close {
+      width: 100%; margin-top: 20px; padding: 15px;
+      border-radius: 14px; border: none;
+      background: var(--navy); color: #fff;
+      font-family: inherit; font-size: 15px; font-weight: 700;
+      cursor: pointer; -webkit-tap-highlight-color: transparent;
+    }
+
+    /* 設定モーダル専用 */
+    .setting-group { display: flex; flex-direction: column; gap: 6px; margin-bottom: 18px; }
+    .setting-label { font-size: 13px; font-weight: 700; color: var(--text); }
+    .emp-setting-list { display: flex; flex-direction: column; gap: 8px; }
+    .emp-setting-row {
+      display: grid; grid-template-columns: 1fr auto auto;
+      gap: 8px; align-items: center;
+    }
+    .emp-setting-row input { font-size: 14px; }
+    .emp-role-input { width: 80px; font-size: 14px; }
+    .btn-del-emp {
+      width: 32px; height: 32px; border-radius: 8px; border: none;
+      background: #fee2e2; color: var(--red);
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; font-size: 18px; line-height: 1;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .btn-add-emp {
+      background: none; border: 1.5px dashed var(--border);
+      border-radius: 10px; padding: 10px;
+      font-family: inherit; font-size: 13px; color: var(--gray);
+      cursor: pointer; width: 100%; margin-top: 4px;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    /* 使い方モーダル */
+    .help-section { margin-bottom: 20px; }
+    .help-head {
+      display: flex; align-items: center; gap: 8px;
+      font-size: 14px; font-weight: 700; color: var(--navy);
+      border-bottom: 2px solid #e0e7f3;
+      padding-bottom: 6px; margin-bottom: 10px;
+    }
+    .step-no {
+      background: var(--navy); color: #fff;
+      width: 22px; height: 22px; border-radius: 50%;
+      font-size: 11px; font-weight: 900;
+      display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+    }
+    .help-list { list-style: none; display: flex; flex-direction: column; gap: 7px; }
+    .help-list li {
+      display: flex; gap: 8px; align-items: flex-start;
+      font-size: 13px; color: #374151; line-height: 1.75;
+    }
+    .help-list li::before {
+      content: "✔"; color: var(--navy); font-weight: 700; flex-shrink: 0; margin-top: 1px;
+    }
+
+    /* パスワードモーダル */
+    .pass-head { text-align: center; margin-bottom: 18px; }
+    .pass-head p { font-size: 13px; color: var(--gray); margin-top: 6px; line-height: 1.7; }
+    .pass-input-wrap { display: flex; gap: 10px; }
+    .pass-input-wrap input { font-size: 16px; }
+    .btn-pass { white-space: nowrap; width: auto; padding: 14px 20px; flex-shrink: 0; }
+    .pass-link {
+      display: block; text-align: center; margin-top: 12px;
+      font-size: 12px; color: var(--navy); text-decoration: underline;
+      cursor: pointer;
+    }
+
+    /* エラー */
+    .err-box {
+      background: #fef2f2; border: 1px solid #fecaca;
+      border-radius: 12px; padding: 12px 14px;
+      font-size: 13px; color: #991b1b; line-height: 1.7;
+      display: none;
+    }
+    .err-box.show { display: block; }
+
+    /* 非対応ブラウザ */
+    .unsupported {
+      display: none; text-align: center;
+      padding: 20px; color: var(--gray);
+    }
+    .unsupported p { font-size: 13px; line-height: 1.8; }
   </style>
 </head>
 <body>
-  <div id="root"></div>
+<div class="app">
 
-  <script type="text/babel">
-    const { useState, useEffect } = React;
+  <!-- ヘッダー -->
+  <header>
+    <span class="header-title">社長の相棒</span>
+    <span class="header-badge"><span class="badge-dot"></span>AI搭載</span>
+  </header>
 
-    // --- アイコンコンポーネント (外部依存をなくすためにSVGを直接埋め込み) ---
-    const IconBase = ({ children, size = 24, className = "" }) => (
-      <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
-        {children}
-      </svg>
-    );
+  <!-- トースト -->
+  <div class="toast" id="toast"><span id="toastMsg"></span></div>
 
-    const Mic = (props) => <IconBase {...props}><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" x2="12" y1="19" y2="22"/></IconBase>;
-    const FileText = (props) => <IconBase {...props}><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M10 9H8"/><path d="M16 13H8"/><path d="M16 17H8"/></IconBase>;
-    const Gift = (props) => <IconBase {...props}><polyline points="20 12 20 22 4 22 4 12"/><rect x="2" y="7" width="20" height="5"/><line x1="12" x2="12" y1="22" y2="7"/><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/></IconBase>;
-    const Send = (props) => <IconBase {...props}><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></IconBase>;
-    const User = (props) => <IconBase {...props}><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></IconBase>;
-    const CheckCircle = (props) => <IconBase {...props}><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></IconBase>;
-    const Volume2 = (props) => <IconBase {...props}><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/></IconBase>;
-    const AlertCircle = (props) => <IconBase {...props}><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></IconBase>;
-    const Settings = (props) => <IconBase {...props}><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></IconBase>;
-    const HelpCircle = (props) => <IconBase {...props}><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></IconBase>;
-    const ChevronLeft = (props) => <IconBase {...props}><polyline points="15 18 9 12 15 6"/></IconBase>;
+  <!-- ========== メイン ========== -->
+  <main id="mainArea">
 
+    <!-- ===== タブ1：声で相談する ===== -->
+    <div class="tab-content active" id="tab1">
+      <div class="section-head">
+        <h2>今日、何か悩んでいますか？</h2>
+        <p>声で、または文字で話しかけてください。<br>AIがいっしょに整理します。</p>
+      </div>
 
-    // --- メインアプリ ---
-    function App() {
-      const [currentScreen, setCurrentScreen] = useState('home'); // 'home', 'settings', 'help'
-      const [activeTab, setActiveTab] = useState('voice');
-      const [toastMessage, setToastMessage] = useState('');
-
-      // トースト通知の処理
-      const showToast = (message) => {
-        setToastMessage(message);
-        setTimeout(() => setToastMessage(''), 3000);
-      };
-
-      return (
-        <div className="flex justify-center bg-gray-100 min-h-screen">
-          {/* モバイルアプリの枠組み */}
-          <div className="w-full max-w-md bg-white shadow-xl relative flex flex-col h-screen overflow-hidden">
-            
-            {/* ヘッダー */}
-            <header className="bg-blue-800 text-white p-4 shadow-md z-10 flex items-center justify-between flex-shrink-0">
-              <div className="flex items-center">
-                <h1 className="text-xl font-bold tracking-wider mr-2">社長の相棒</h1>
-                <div className="flex items-center text-[10px] bg-blue-700 px-2 py-0.5 rounded-full border border-blue-600">
-                  <CheckCircle size={10} className="mr-1 text-green-400" />
-                  楽一連携
-                </div>
-              </div>
-              <div className="flex items-center space-x-2">
-                <button onClick={() => setCurrentScreen('help')} className="p-1 hover:bg-blue-700 rounded-xl transition-colors flex flex-col items-center">
-                  <HelpCircle size={22} />
-                  <span className="text-[10px] mt-1 font-bold">使い方</span>
-                </button>
-                <button onClick={() => setCurrentScreen('settings')} className="p-1 hover:bg-blue-700 rounded-xl transition-colors flex flex-col items-center">
-                  <Settings size={22} />
-                  <span className="text-[10px] mt-1 font-bold">設定</span>
-                </button>
-              </div>
-            </header>
-
-            {/* メインコンテンツ */}
-            <main className={`flex-1 overflow-y-auto bg-gray-50 relative ${currentScreen === 'home' ? 'pb-24' : 'pb-6'}`}>
-              {currentScreen === 'home' && activeTab === 'voice' && <VoiceTab showToast={showToast} />}
-              {currentScreen === 'home' && activeTab === 'report' && <ReportTab />}
-              {currentScreen === 'home' && activeTab === 'thanks' && <ThanksTab showToast={showToast} />}
-              {currentScreen === 'settings' && <SettingsScreen showToast={showToast} onBack={() => setCurrentScreen('home')} />}
-              {currentScreen === 'help' && <HelpScreen onBack={() => setCurrentScreen('home')} />}
-            </main>
-
-            {/* トースト通知 */}
-            {toastMessage && (
-              <div className="absolute top-20 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white px-6 py-3 rounded-full shadow-2xl flex items-center space-x-2 animate-bounce z-50 w-11/12 max-w-sm">
-                <CheckCircle size={20} className="text-green-400" />
-                <span className="font-bold">{toastMessage}</span>
-              </div>
-            )}
-
-            {/* 下部ナビゲーション (3つの入り口) */}
-            {currentScreen === 'home' && (
-              <nav className="bg-white border-t-2 border-gray-200 flex-shrink-0 w-full flex">
-                <TabButton 
-                  active={activeTab === 'voice'} 
-                  onClick={() => setActiveTab('voice')} 
-                  icon={<Volume2 size={28} />} 
-                  label="声で頼む" 
-                />
-                <TabButton 
-                  active={activeTab === 'report'} 
-                  onClick={() => setActiveTab('report')} 
-                  icon={<FileText size={28} />} 
-                  label="今月の報告" 
-                />
-                <TabButton 
-                  active={activeTab === 'thanks'} 
-                  onClick={() => setActiveTab('thanks')} 
-                  icon={<Gift size={28} />} 
-                  label="ねぎらう" 
-                />
-              </nav>
-            )}
-
-            {/* フッター */}
-            <footer className="bg-white text-center text-[10px] text-gray-400 py-1.5 border-t border-gray-100 flex-shrink-0">
-              Developed by SPC
-            </footer>
-          </div>
-        </div>
-      );
-    }
-
-    // --- 各タブのコンポーネント ---
-
-    // 1. 声で指示を出すタブ
-    function VoiceTab({ showToast }) {
-      const [isRecording, setIsRecording] = useState(false);
-      const [transcript, setTranscript] = useState('');
-      const [isProcessing, setIsProcessing] = useState(false);
-
-      const handleRecordClick = () => {
-        if (isRecording) {
-          setIsRecording(false);
-          setIsProcessing(true);
-          // AIが音声を文字に変換するのをシミュレート
-          setTimeout(() => {
-            setIsProcessing(false);
-            setTranscript('「山田設備さんに、今日の追加工事分で5万円請求書出しといて。あ、急ぎでね。」');
-          }, 1500);
-        } else {
-          setIsRecording(true);
-          setTranscript('');
-        }
-      };
-
-      const handleSend = () => {
-        if (!transcript) return;
-        showToast('事務所のパソコンに指示を送りました！');
-        setTranscript('');
-      };
-
-      return (
-        <div className="p-6 flex flex-col items-center justify-center h-full space-y-8">
-          <div className="text-center space-y-2">
-            <h2 className="text-2xl font-bold text-gray-800">事務所に指示を出す</h2>
-            <p className="text-gray-600">スマホに向かって喋るだけです</p>
-          </div>
-
-          {/* 大きなマイクボタン */}
-          <button 
-            onClick={handleRecordClick}
-            className={`w-40 h-40 rounded-full flex items-center justify-center shadow-lg transition-all duration-300 ${
-              isRecording 
-                ? 'bg-red-500 animate-pulse scale-110 shadow-red-200' 
-                : 'bg-blue-600 hover:bg-blue-500 shadow-blue-200'
-            }`}
-          >
-            <Mic size={64} className="text-white" />
+      <!-- マイクボタン -->
+      <div class="mic-area">
+        <div class="mic-wrap" id="micWrap">
+          <div class="ripple ripple-1"></div>
+          <div class="ripple ripple-2"></div>
+          <button class="mic-btn" id="micBtn" onclick="toggleMic()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/>
+              <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
+              <line x1="12" x2="12" y1="19" y2="22"/>
+            </svg>
+            <span class="mic-label" id="micLabel">押して話す</span>
           </button>
-          
-          <p className="text-xl font-bold text-red-500 h-8">
-            {isRecording ? '録音中...（もう一度押して完了）' : ''}
-            {isProcessing ? '文字に変換しています...' : ''}
-          </p>
+        </div>
+        <p class="mic-status" id="micStatus"></p>
+        <div class="unsupported" id="unsupported">
+          <p>音声入力はiPhoneのSafari・AndroidのChromeでお使いください。<br>下のテキスト入力もご利用いただけます。</p>
+        </div>
+        <div class="mic-divider">または文字で入力</div>
+      </div>
 
-          {/* 文字起こし結果エリア */}
-          <div className={`w-full transition-opacity duration-500 ${transcript ? 'opacity-100' : 'opacity-0'}`}>
-            <div className="bg-white p-4 rounded-xl shadow border border-gray-200 mb-4">
-              <p className="text-lg text-gray-800 font-medium">{transcript}</p>
+      <!-- テキスト入力 -->
+      <div class="card">
+        <div class="card-label">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
+          気になっていること・悩んでいること
+        </div>
+        <textarea id="consultText" placeholder="例：給料を上げてあげたいが経営的に大丈夫か不安です。先月の利益は出ているのですが手元のお金が少なくて…" rows="4"></textarea>
+      </div>
+
+      <!-- 送信 -->
+      <div class="use-badge" id="useBadge1"></div>
+      <button class="btn btn-primary" onclick="submitConsult()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"/>
+          <path d="m9 12 2 2 4-4"/>
+        </svg>
+        AIに相談する
+      </button>
+
+      <!-- エラー -->
+      <div class="err-box" id="err1"></div>
+
+      <!-- 結果エリア -->
+      <div id="result1"></div>
+    </div>
+
+    <!-- ===== タブ2：数字を確認する ===== -->
+    <div class="tab-content" id="tab2">
+      <div class="section-head">
+        <h2>今月の数字を確認する</h2>
+        <p>大まかな数字を入れるだけで大丈夫です。<br>AIが気になる点をお伝えします。</p>
+      </div>
+
+      <div class="card">
+        <div class="input-row">
+          <div class="input-group">
+            <label>📈 今月の売上（概算）</label>
+            <div class="yen-wrap">
+              <input type="number" id="sales" placeholder="0" inputmode="numeric">
+              <span class="yen-unit">万円</span>
             </div>
-            <button 
-              onClick={handleSend}
-              disabled={!transcript}
-              className="w-full bg-green-600 text-white text-xl font-bold py-4 rounded-xl shadow-md flex items-center justify-center space-x-2 hover:bg-green-500 active:scale-95 transition-transform"
-            >
-              <Send size={24} />
-              <span>事務所へ送る</span>
-            </button>
+          </div>
+          <div class="input-group">
+            <label>📉 今月の経費（概算）</label>
+            <div class="yen-wrap">
+              <input type="number" id="cost" placeholder="0" inputmode="numeric">
+              <span class="yen-unit">万円</span>
+            </div>
           </div>
         </div>
-      );
-    }
+      </div>
 
-    // 2. シンプルな報告タブ
-    function ReportTab() {
-      return (
-        <div className="p-6 h-full">
-          <div className="mb-6">
-            <h2 className="text-2xl font-bold text-gray-800 border-b-4 border-blue-600 pb-2 inline-block">今月の状況</h2>
-            <p className="text-gray-500 mt-2">楽一のデータからAIが読み取りました</p>
-          </div>
-
-          <div className="space-y-6">
-            <div className="bg-white p-5 rounded-2xl shadow-sm border-l-8 border-green-500">
-              <h3 className="text-xl font-bold text-gray-800 mb-2 flex items-center">
-                <span className="text-2xl mr-2">😊</span> 良いお知らせ
-              </h3>
-              <p className="text-lg text-gray-700 leading-relaxed">
-                社長！今月の売上は先月よりも<span className="font-bold text-red-600">良いペース</span>で進んでいます。特にA社からの注文が増えていますね。
-              </p>
-            </div>
-
-            <div className="bg-white p-5 rounded-2xl shadow-sm border-l-8 border-yellow-500">
-              <h3 className="text-xl font-bold text-gray-800 mb-2 flex items-center">
-                <span className="text-2xl mr-2">💡</span> 気になるポイント
-              </h3>
-              <p className="text-lg text-gray-700 leading-relaxed">
-                B社さんからの入金が<span className="font-bold text-blue-600">まだ確認できていません。</span>来週あたり、少し様子を伺ってみてはいかがでしょうか？
-              </p>
-            </div>
-
-            <div className="bg-blue-50 p-5 rounded-2xl border border-blue-100 text-center mt-8">
-              <p className="text-xl font-bold text-blue-800">
-                今月もこの調子で頑張りましょう！
-              </p>
-            </div>
-          </div>
+      <div class="card">
+        <div class="card-label">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v4"/><path d="M12 16h.01"/></svg>
+          気になっていること（任意）
         </div>
-      );
-    }
+        <textarea id="numsMemo" placeholder="例：売上はいいが手元のお金が少ない。消費税の支払いが不安。社員の賞与を出せるか確認したい。" rows="3"></textarea>
+      </div>
 
-    // 3. 社員をねぎらうタブ
-    function ThanksTab({ showToast }) {
-      const employees = [
-        { id: 1, name: '佐藤 健太', role: '営業' },
-        { id: 2, name: '鈴木 美咲', role: '事務' },
-        { id: 3, name: '高橋 工務', role: '現場' },
-      ];
+      <div class="use-badge" id="useBadge2"></div>
+      <button class="btn btn-primary" onclick="submitNumbers()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="2" y="3" width="20" height="14" rx="2"/>
+          <path d="M8 21h8M12 17v4"/>
+        </svg>
+        AIに診てもらう
+      </button>
 
-      const handleThanks = (name) => {
-        showToast(`${name}さんにコーヒーチケットを送りました！`);
-      };
+      <div class="err-box" id="err2"></div>
+      <div id="result2"></div>
+    </div>
 
-      return (
-        <div className="p-6 h-full">
-          <div className="mb-6 text-center">
-            <h2 className="text-2xl font-bold text-gray-800">社員をねぎらう</h2>
-            <p className="text-gray-600 mt-2">頑張っている社員に、<br/>社長から「ありがとう」を贈りましょう。</p>
-          </div>
+    <!-- ===== タブ3：社員に届ける ===== -->
+    <div class="tab-content" id="tab3">
+      <div class="section-head">
+        <h2>社員に「ありがとう」を届ける</h2>
+        <p>頑張っている社員を選んで送るだけ。<br>AIが社長らしい言葉を作ります。</p>
+      </div>
 
-          <div className="space-y-4">
-            {employees.map((emp) => (
-              <div key={emp.id} className="bg-white p-4 rounded-xl shadow flex items-center justify-between">
-                <div className="flex items-center space-x-4">
-                  <div className="bg-gray-200 p-3 rounded-full">
-                    <User size={24} className="text-gray-600" />
-                  </div>
-                  <div>
-                    <p className="text-sm text-gray-500">{emp.role}</p>
-                    <p className="text-xl font-bold text-gray-800">{emp.name}</p>
-                  </div>
-                </div>
-                
-                <button 
-                  onClick={() => handleThanks(emp.name)}
-                  className="bg-orange-500 text-white px-4 py-3 rounded-lg font-bold shadow hover:bg-orange-400 active:scale-95 transition-transform flex flex-col items-center"
-                >
-                  <Gift size={20} className="mb-1" />
-                  <span className="text-xs">ねぎらう</span>
-                </button>
-              </div>
-            ))}
-          </div>
-          
-          <div className="mt-8 bg-orange-50 p-4 rounded-xl border border-orange-200 flex items-start space-x-3">
-            <AlertCircle className="text-orange-600 flex-shrink-0" />
-            <p className="text-sm text-orange-800">
-              「ねぎらう」を押すと、社員のLINEに社長からの感謝メッセージとデジタルのコーヒーチケット（1杯分）が届きます。
-            </p>
-          </div>
+      <!-- 社員リスト -->
+      <div class="card">
+        <div class="card-label">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          メッセージを届ける社員を選ぶ
         </div>
-      );
-    }
+        <div class="emp-list" id="empList">
+          <!-- JS で描画 -->
+        </div>
+      </div>
 
-    // ナビゲーションのボタンコンポーネント
-    function TabButton({ active, onClick, icon, label }) {
-      return (
-        <button 
-          onClick={onClick}
-          className={`flex-1 flex flex-col items-center justify-center py-3 transition-colors duration-200 ${
-            active ? 'text-blue-700 bg-blue-50' : 'text-gray-500 hover:bg-gray-50'
-          }`}
-        >
-          <div className={`mb-1 ${active ? 'animate-bounce' : ''}`}>
-            {icon}
-          </div>
-          <span className={`text-xs font-bold ${active ? 'text-blue-800' : ''}`}>{label}</span>
-          {active && <div className="w-1/2 h-1 bg-blue-700 rounded-full mt-1"></div>}
+      <!-- 一言メモ -->
+      <div class="card" id="memoCard" style="display:none">
+        <div class="card-label">✏️ 今月頑張ってくれたこと（任意）</div>
+        <textarea id="thanksMemo" placeholder="例：先月の展示会で一番動いてくれた。納期ギリギリを何度も乗り越えてくれた。" rows="2"></textarea>
+      </div>
+
+      <div class="use-badge" id="useBadge3"></div>
+      <button class="btn btn-gold" id="thanksBtn" onclick="submitThanks()" style="display:none">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+        </svg>
+        メッセージを作る
+      </button>
+
+      <div class="err-box" id="err3"></div>
+      <div id="result3"></div>
+    </div>
+
+  </main>
+
+  <!-- ========== 底部ナビ ========== -->
+  <nav>
+    <button class="nav-btn active" id="nav1" onclick="switchTab(1)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/>
+        <path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" x2="12" y1="19" y2="22"/>
+      </svg>
+      <span>声で相談</span>
+      <div class="nav-indicator"></div>
+    </button>
+    <button class="nav-btn" id="nav2" onclick="switchTab(2)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/>
+      </svg>
+      <span>数字を確認</span>
+      <div class="nav-indicator"></div>
+    </button>
+    <button class="nav-btn" id="nav3" onclick="switchTab(3)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+      </svg>
+      <span>社員に届ける</span>
+      <div class="nav-indicator"></div>
+    </button>
+  </nav>
+
+  <!-- ========== フッター ========== -->
+  <footer>
+    <button class="footer-link" onclick="openModal('helpModal')">使い方</button>
+    <span class="footer-sep">｜</span>
+    <button class="footer-link" onclick="loadDemo()">デモデータ</button>
+    <span class="footer-sep">｜</span>
+    <button class="footer-link" onclick="clearAll()">クリア</button>
+    <span class="footer-sep">｜</span>
+    <button class="footer-link" onclick="openModal('settingsModal')">設定</button>
+    <span class="footer-right">SPC</span>
+  </footer>
+
+</div><!-- /.app -->
+
+<!-- ========== 使い方モーダル ========== -->
+<div class="modal-overlay" id="helpModal" onclick="closeModalOutside(event,'helpModal')">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <p class="modal-title">📖 使い方ガイド</p>
+
+    <div class="help-section">
+      <div class="help-head"><span style="font-size:16px">🎯</span> このアプリでできること</div>
+      <ul class="help-list">
+        <li>給料・税金・経費・売上など、ひとりで悩んでいることをAIに相談できます</li>
+        <li>大まかな売上と経費を入力するだけで、気になる点をAIが教えてくれます</li>
+        <li>社員への感謝メッセージをAIが作り、LINEでそのまま送れます</li>
+        <li>難しい操作はありません。話しかけるか、文字を入れるだけです</li>
+      </ul>
+    </div>
+
+    <div class="help-section">
+      <div class="help-head"><span class="step-no">1</span> 声で相談する</div>
+      <ul class="help-list">
+        <li>マイクボタンを押して、スマホに向かって悩みを話してください</li>
+        <li>ボタンが赤くなったら録音中です。もう一度押すと止まります</li>
+        <li>文字で入力しても同じように相談できます</li>
+        <li>「AIに相談する」を押すと、AIが3つの観点で整理して答えます</li>
+      </ul>
+    </div>
+
+    <div class="help-section">
+      <div class="help-head"><span class="step-no">2</span> 数字を確認する</div>
+      <ul class="help-list">
+        <li>今月の売上と経費の大まかな金額を入力してください（概算で構いません）</li>
+        <li>気になることがあれば、一言メモに書いてください</li>
+        <li>「AIに診てもらう」を押すと、資金繰りや節税の観点からコメントが届きます</li>
+      </ul>
+    </div>
+
+    <div class="help-section">
+      <div class="help-head"><span class="step-no">3</span> 社員に届ける</div>
+      <ul class="help-list">
+        <li>設定で登録した社員の名前をタップして選んでください</li>
+        <li>頑張ってくれたことがあれば一言メモに書くとより温かいメッセージになります</li>
+        <li>AIがメッセージを作ったら内容を確認して、LINEで送るかコピーしてください</li>
+      </ul>
+    </div>
+
+    <div class="help-section">
+      <div class="help-head"><span style="font-size:16px">⚠️</span> ご注意</div>
+      <ul class="help-list">
+        <li>音声入力はiPhoneのSafari、AndroidのChromeでご使用ください</li>
+        <li>初回はマイクの許可を求める画面が出ます。「許可」を選んでください</li>
+        <li>AIの回答はあくまで参考情報です。重要な判断は専門家にご相談ください</li>
+      </ul>
+    </div>
+
+    <button class="modal-close" onclick="closeModal('helpModal')">わかりました</button>
+  </div>
+</div>
+
+<!-- ========== 設定モーダル ========== -->
+<div class="modal-overlay" id="settingsModal" onclick="closeModalOutside(event,'settingsModal')">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <p class="modal-title">⚙️ 設定</p>
+
+    <div class="setting-group">
+      <label class="setting-label">会社名</label>
+      <input type="text" id="companyName" placeholder="例：株式会社〇〇製作所">
+    </div>
+
+    <div class="setting-group">
+      <label class="setting-label">社員リスト（最大8名）</label>
+      <div class="emp-setting-list" id="empSettingList"></div>
+      <button class="btn-add-emp" onclick="addEmpRow()">＋ 社員を追加する</button>
+    </div>
+
+    <div class="setting-group">
+      <label class="setting-label">解除パスワード</label>
+      <div class="pass-input-wrap">
+        <input type="text" id="settingsPass" placeholder="パスワードを入力" style="font-size:14px">
+        <button class="btn btn-primary btn-pass" onclick="checkPassFromSettings()">解除</button>
+      </div>
+      <a class="pass-link" href="https://spc-jp.github.io/thanks-pages/" target="_blank">
+        パスワードの取得はこちら →
+      </a>
+    </div>
+
+    <button class="modal-close" onclick="saveSettings()">保存して閉じる</button>
+  </div>
+</div>
+
+<!-- ========== パスワードモーダル ========== -->
+<div class="modal-overlay" id="passModal">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="pass-head">
+      <p class="modal-title" style="text-align:center">🔒 無料回数を使い切りました</p>
+      <p>引き続きご利用いただくには<br>パスワードの入力が必要です。</p>
+    </div>
+    <div class="pass-input-wrap">
+      <input type="text" id="passInput" placeholder="パスワードを入力">
+      <button class="btn btn-primary btn-pass" onclick="checkPass()">解除</button>
+    </div>
+    <a class="pass-link" href="https://spc-jp.github.io/thanks-pages/" target="_blank">
+      パスワードの取得はこちら →
+    </a>
+    <button class="modal-close" style="background:#f1f5f9;color:var(--gray);margin-top:12px" onclick="closeModal('passModal')">あとで</button>
+  </div>
+</div>
+
+<!-- ================================================================
+     JavaScript
+================================================================ -->
+<script>
+/* ==============================
+   ★ 設定（ここだけ変更する）
+============================== */
+const WORKER_URL  = 'https://yymmatsu.workers.dev';  // CloudflareワーカーURL
+const PASSWORD    = 'spc2024';   // ← 解除パスワード（販売店で変更）
+const FREE_LIMIT  = 3;           // 無料使用回数
+const STORAGE_USE = 'shacho_uses';
+const STORAGE_UNL = 'shacho_unlocked';
+const STORAGE_CFG = 'shacho_config';
+
+/* ==============================
+   状態変数
+============================== */
+let currentTab    = 1;
+let selectedEmp   = null;   // タブ3で選択中の社員
+let recognition   = null;
+let isRecording   = false;
+let finalText     = '';
+let interimText   = '';
+
+/* ==============================
+   起動時処理
+============================== */
+window.addEventListener('DOMContentLoaded', () => {
+  initSpeech();
+  loadSettings();
+  renderEmpList();
+  updateAllUseBadge();
+});
+
+/* ==============================
+   タブ切替
+============================== */
+function switchTab(n) {
+  [1,2,3].forEach(i => {
+    document.getElementById('tab'+i).classList.toggle('active', i===n);
+    document.getElementById('nav'+i).classList.toggle('active', i===n);
+  });
+  currentTab = n;
+  updateAllUseBadge();
+  if (n===3) renderEmpList();
+}
+
+/* ==============================
+   音声認識
+============================== */
+function initSpeech() {
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SR) { document.getElementById('unsupported').style.display='block'; return; }
+
+  recognition = new SR();
+  recognition.lang           = 'ja-JP';
+  recognition.continuous     = true;
+  recognition.interimResults = true;
+
+  recognition.onresult = (e) => {
+    interimText = '';
+    for (let i=e.resultIndex; i<e.results.length; i++) {
+      const t = e.results[i][0].transcript;
+      if (e.results[i].isFinal) { finalText += t; interimText=''; }
+      else { interimText = t; }
+    }
+    document.getElementById('consultText').value = finalText + interimText;
+  };
+
+  recognition.onend = () => {
+    if (isRecording) { try { recognition.start(); } catch(err) { stopMic(); } }
+  };
+
+  recognition.onerror = (e) => {
+    const m = e.error==='not-allowed'
+      ? 'マイクへのアクセスが許可されていません。ブラウザの設定をご確認ください。'
+      : '音声を検出できませんでした。もう一度お試しください。';
+    document.getElementById('err1').textContent = m;
+    document.getElementById('err1').classList.add('show');
+    stopMic();
+  };
+}
+
+function toggleMic() {
+  if (!recognition) return;
+  isRecording ? stopMic() : startMic();
+}
+
+function startMic() {
+  finalText=''; interimText='';
+  document.getElementById('consultText').value='';
+  document.getElementById('err1').classList.remove('show');
+  isRecording=true;
+  document.getElementById('micBtn').classList.add('recording');
+  document.getElementById('micWrap').classList.add('recording');
+  document.getElementById('micLabel').textContent='停止する';
+  document.getElementById('micStatus').textContent='録音中… もう一度押すと完了';
+  try { recognition.start(); } catch(e){ stopMic(); }
+}
+
+function stopMic() {
+  isRecording=false;
+  try { recognition.stop(); } catch(e){}
+  document.getElementById('micBtn').classList.remove('recording');
+  document.getElementById('micWrap').classList.remove('recording');
+  document.getElementById('micLabel').textContent='押して話す';
+  document.getElementById('micStatus').textContent='';
+  finalText = document.getElementById('consultText').value.trim();
+}
+
+/* ==============================
+   タブ1：相談送信
+============================== */
+async function submitConsult() {
+  const text = document.getElementById('consultText').value.trim();
+  if (!text) { showErr('err1','相談内容を入力してください。'); return; }
+
+  if (!checkUseLimit()) return;
+
+  const cfg = loadCfg();
+  showLoading('result1','AIが整理しています…');
+  hideErr('err1');
+
+  try {
+    const res = await callWorker('/shacho-consult', {
+      mode: 'consult',
+      text,
+      company: cfg.company || '御社'
+    });
+
+    incrementUse();
+    renderConsultResult(res);
+  } catch(e) {
+    showErr('err1', 'AIとの通信でエラーが発生しました。しばらく経ってから再度お試しください。');
+    document.getElementById('result1').innerHTML='';
+  }
+  updateAllUseBadge();
+}
+
+function renderConsultResult(res) {
+  const el = document.getElementById('result1');
+  el.innerHTML = `
+    <div class="result-area">
+      <div class="result-card green">
+        <div class="result-head">😊 まず状況を整理すると</div>
+        <div class="result-body">${esc(res.summary)}</div>
+      </div>
+      <div class="result-card yellow">
+        <div class="result-head">💡 気をつけるべきこと</div>
+        <div class="result-body">${esc(res.caution)}</div>
+      </div>
+      <div class="result-card navy">
+        <div class="result-head">🤝 社長へのひとこと</div>
+        <div class="result-body">${esc(res.message)}</div>
+      </div>
+      <button class="btn btn-sub" onclick="clearResult('result1','consultText')">
+        別の相談をする
+      </button>
+    </div>`;
+}
+
+/* ==============================
+   タブ2：数字送信
+============================== */
+async function submitNumbers() {
+  const sales = document.getElementById('sales').value;
+  const cost  = document.getElementById('cost').value;
+  const memo  = document.getElementById('numsMemo').value.trim();
+
+  if (!sales && !cost && !memo) { showErr('err2','数字か気になることを入力してください。'); return; }
+  if (!checkUseLimit()) return;
+
+  const cfg = loadCfg();
+  showLoading('result2','数字を分析しています…');
+  hideErr('err2');
+
+  try {
+    const res = await callWorker('/shacho-consult', {
+      mode: 'numbers',
+      sales: sales||'不明',
+      cost: cost||'不明',
+      memo,
+      company: cfg.company||'御社'
+    });
+
+    incrementUse();
+    renderNumbersResult(res);
+  } catch(e) {
+    showErr('err2','AIとの通信でエラーが発生しました。しばらく経ってから再度お試しください。');
+    document.getElementById('result2').innerHTML='';
+  }
+  updateAllUseBadge();
+}
+
+function renderNumbersResult(res) {
+  const el = document.getElementById('result2');
+  const sales = document.getElementById('sales').value;
+  const cost  = document.getElementById('cost').value;
+  const profit = (sales && cost) ? Number(sales)-Number(cost) : null;
+
+  el.innerHTML = `
+    <div class="result-area">
+      ${profit!==null ? `
+      <div class="result-card plain">
+        <div class="result-head">📊 おおよその粗利</div>
+        <div class="result-body" style="font-size:22px;font-weight:900;color:${profit>=0?'#15803d':'var(--red)'}">
+          ${profit.toLocaleString()}万円
+          <span style="font-size:14px;font-weight:400;color:var(--gray);margin-left:6px">
+            （売上${Number(sales).toLocaleString()}万 − 経費${Number(cost).toLocaleString()}万）
+          </span>
+        </div>
+      </div>` : ''}
+      <div class="result-card navy">
+        <div class="result-head">🤖 AIからのコメント</div>
+        <div class="result-body">${esc(res.diagnosis)}</div>
+      </div>
+      <button class="btn btn-sub" onclick="clearResult('result2','sales','cost','numsMemo')">
+        数字を入れ直す
+      </button>
+    </div>`;
+}
+
+/* ==============================
+   タブ3：社員選択・メッセージ生成
+============================== */
+function renderEmpList() {
+  const cfg = loadCfg();
+  const el  = document.getElementById('empList');
+
+  if (!cfg.employees || cfg.employees.length===0) {
+    el.innerHTML = `<div class="emp-empty">
+      社員が登録されていません。<br>
+      フッターの「設定」から社員を登録してください。
+    </div>`;
+    document.getElementById('thanksBtn').style.display='none';
+    document.getElementById('memoCard').style.display='none';
+    return;
+  }
+
+  el.innerHTML = cfg.employees.map((emp,i) => `
+    <div class="emp-card ${selectedEmp===i?'selected':''}" onclick="selectEmp(${i})">
+      <div class="emp-info">
+        <div class="emp-avatar">${emp.name.charAt(0)}</div>
+        <div>
+          <div class="emp-name">${esc(emp.name)}</div>
+          <div class="emp-role">${esc(emp.role||'スタッフ')}</div>
+        </div>
+      </div>
+      <div class="emp-check">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="20 6 9 17 4 12"/>
+        </svg>
+      </div>
+    </div>`).join('');
+}
+
+function selectEmp(i) {
+  selectedEmp = i;
+  renderEmpList();
+  document.getElementById('memoCard').style.display='block';
+  document.getElementById('thanksBtn').style.display='flex';
+  document.getElementById('result3').innerHTML='';
+}
+
+async function submitThanks() {
+  const cfg = loadCfg();
+  if (selectedEmp===null || !cfg.employees[selectedEmp]) return;
+
+  if (!checkUseLimit()) return;
+
+  const emp  = cfg.employees[selectedEmp];
+  const memo = document.getElementById('thanksMemo').value.trim();
+
+  showLoading('result3','メッセージを考えています…');
+  hideErr('err3');
+
+  try {
+    const res = await callWorker('/shacho-thanks', {
+      name:    emp.name,
+      role:    emp.role||'スタッフ',
+      memo,
+      company: cfg.company||'私ども'
+    });
+
+    incrementUse();
+    renderThanksResult(res, emp.name);
+  } catch(e) {
+    showErr('err3','AIとの通信でエラーが発生しました。しばらく経ってから再度お試しください。');
+    document.getElementById('result3').innerHTML='';
+  }
+  updateAllUseBadge();
+}
+
+function renderThanksResult(res, name) {
+  const el = document.getElementById('result3');
+  el.innerHTML = `
+    <div class="result-area">
+      <div class="card-label" style="margin-bottom:6px">✉️ ${esc(name)}さんへのメッセージ</div>
+      <div class="msg-preview" id="thanksMsg">${esc(res.message)}</div>
+      <div class="btn-row">
+        <button class="btn btn-line" onclick="sendLine()">
+          <svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20">
+            <path d="M19.365 9.863c.349 0 .63.285.63.631 0 .345-.281.63-.63.63H17.61v1.125h1.755c.349 0 .63.283.63.63 0 .344-.281.629-.63.629h-2.386c-.345 0-.627-.285-.627-.629V8.108c0-.345.282-.63.63-.63h2.386c.346 0 .627.285.627.63 0 .349-.281.63-.63.63H17.61v1.125h1.755zm-3.855 3.016c0 .27-.174.51-.432.596-.064.021-.133.031-.199.031-.211 0-.391-.09-.51-.25l-2.443-3.317v2.94c0 .344-.279.629-.631.629-.346 0-.626-.285-.626-.629V8.108c0-.27.173-.51.43-.595.06-.023.136-.033.194-.033.195 0 .375.105.495.254l2.462 3.33V8.108c0-.345.282-.63.63-.63.345 0 .63.285.63.63v4.771zm-5.741 0c0 .344-.282.629-.631.629-.345 0-.627-.285-.627-.629V8.108c0-.345.282-.63.63-.63.346 0 .628.285.628.63v4.771zm-2.466.629H4.917c-.345 0-.63-.285-.63-.629V8.108c0-.345.285-.63.63-.63.348 0 .63.285.63.63v4.141h1.756c.348 0 .629.283.629.63 0 .344-.282.629-.629.629M24 10.314C24 4.943 18.615.572 12 .572S0 4.943 0 10.314c0 4.811 4.27 8.842 10.035 9.608.391.082.923.258 1.058.59.12.301.079.766.038 1.08l-.164 1.02c-.045.301-.24 1.186 1.049.645 1.291-.539 6.916-4.078 9.436-6.975C23.176 14.393 24 12.458 24 10.314"/>
+          </svg>
+          LINEで送る
         </button>
-      );
-    }
+        <button class="btn btn-copy" onclick="copyThanks()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="9" y="9" width="13" height="13" rx="2"/>
+            <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+          </svg>
+          コピー
+        </button>
+      </div>
+      <button class="btn btn-sub" onclick="clearThanks()">別の社員に届ける</button>
+    </div>`;
+}
 
-    // --- 新しい画面 ---
+function sendLine() {
+  const msg = document.getElementById('thanksMsg')?.textContent;
+  if (!msg) return;
+  window.open('https://line.me/R/msg/text/?' + encodeURIComponent(msg), '_blank');
+  showToast('💬 LINEを開きました！');
+}
 
-    // 設定画面
-    function SettingsScreen({ showToast, onBack }) {
-      const [companyName, setCompanyName] = useState('株式会社〇〇');
-      const [presidentName, setPresidentName] = useState('山田 太郎');
-      const [showClearConfirm, setShowClearConfirm] = useState(false);
-      const [showSaveConfirm, setShowSaveConfirm] = useState(false);
+function copyThanks() {
+  const msg = document.getElementById('thanksMsg')?.textContent;
+  if (!msg) return;
+  navigator.clipboard.writeText(msg)
+    .then(()=>showToast('📋 コピーしました！'))
+    .catch(()=>{ legacyCopy(msg); showToast('📋 コピーしました！'); });
+}
 
-      const handleSave = () => {
-        setShowSaveConfirm(true);
-      };
+function clearThanks() {
+  selectedEmp=null;
+  document.getElementById('result3').innerHTML='';
+  document.getElementById('thanksMemo').value='';
+  document.getElementById('memoCard').style.display='none';
+  document.getElementById('thanksBtn').style.display='none';
+  renderEmpList();
+}
 
-      const handleClear = () => {
-        setShowClearConfirm(false);
-        showToast('デモデータをクリアしました。');
-      };
+/* ==============================
+   API呼び出し
+============================== */
+async function callWorker(endpoint, body) {
+  const res = await fetch(WORKER_URL + endpoint, {
+    method:  'POST',
+    headers: {'Content-Type':'application/json'},
+    body:    JSON.stringify(body)
+  });
+  if (!res.ok) throw new Error('API Error: ' + res.status);
+  return await res.json();
+}
 
-      return (
-        <div className="p-6 h-full flex flex-col bg-gray-50">
-          <div className="flex items-center mb-6">
-            <button onClick={onBack} className="mr-4 text-gray-600 p-2 bg-gray-200 rounded-full hover:bg-gray-300">
-              <ChevronLeft size={28} />
-            </button>
-            <h2 className="text-2xl font-bold text-gray-800">設定</h2>
-          </div>
+/* ==============================
+   無料回数管理
+============================== */
+function getUses()     { return parseInt(localStorage.getItem(STORAGE_USE)||'0'); }
+function incrementUse(){ localStorage.setItem(STORAGE_USE, getUses()+1); }
+function isUnlocked()  { return localStorage.getItem(STORAGE_UNL)==='1'; }
 
-          <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-200 mb-6">
-            <h3 className="text-xl font-bold text-gray-800 mb-5 border-b-2 border-gray-100 pb-2">基本情報</h3>
-            <div className="space-y-6">
-              <div>
-                <label className="block text-base font-bold text-gray-700 mb-2">会社名</label>
-                <input 
-                  type="text" 
-                  value={companyName} 
-                  onChange={(e) => setCompanyName(e.target.value)}
-                  className="w-full border-2 border-gray-300 rounded-xl p-4 text-lg bg-gray-50 focus:bg-white focus:border-blue-500 focus:outline-none transition-colors"
-                />
-              </div>
-              <div>
-                <label className="block text-base font-bold text-gray-700 mb-2">社長のお名前</label>
-                <input 
-                  type="text" 
-                  value={presidentName} 
-                  onChange={(e) => setPresidentName(e.target.value)}
-                  className="w-full border-2 border-gray-300 rounded-xl p-4 text-lg bg-gray-50 focus:bg-white focus:border-blue-500 focus:outline-none transition-colors"
-                />
-              </div>
-              <button 
-                onClick={handleSave} 
-                className="w-full bg-blue-600 text-white font-bold py-4 rounded-xl mt-4 shadow-md text-xl hover:bg-blue-500 active:scale-95 transition-transform"
-              >
-                保存する
-              </button>
-            </div>
-          </div>
+function checkUseLimit() {
+  if (isUnlocked()) return true;
+  if (getUses() < FREE_LIMIT) return true;
+  openModal('passModal');
+  return false;
+}
 
-          <div className="mt-auto pt-8 pb-4 text-center">
-            <button 
-              onClick={() => setShowClearConfirm(true)}
-              className="text-gray-400 text-sm border-b border-gray-300 pb-1 hover:text-gray-600"
-            >
-              デモデータをクリア
-            </button>
-          </div>
+function checkPass() {
+  const input = document.getElementById('passInput').value.trim();
+  if (input === PASSWORD) {
+    localStorage.setItem(STORAGE_UNL,'1');
+    closeModal('passModal');
+    updateAllUseBadge();
+    showToast('🎉 解除しました！ご利用ありがとうございます');
+  } else {
+    showToast('❌ パスワードが違います');
+  }
+}
 
-          {/* 保存確認モーダル */}
-          {showSaveConfirm && (
-            <div className="absolute inset-0 bg-gray-900 bg-opacity-60 flex items-center justify-center z-50 p-4">
-              <div className="bg-white rounded-2xl p-8 w-full max-w-sm shadow-2xl text-center transform transition-all">
-                <div className="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-green-100 mb-4">
-                  <CheckCircle className="h-10 w-10 text-green-600" />
-                </div>
-                <h3 className="text-2xl font-bold text-gray-800 mb-2">保存完了</h3>
-                <p className="text-lg text-gray-600 mb-8">基本情報を正しく保存しました。</p>
-                <button 
-                  onClick={() => { setShowSaveConfirm(false); onBack(); }} 
-                  className="w-full bg-blue-600 text-white font-bold py-4 rounded-xl text-xl hover:bg-blue-500"
-                >
-                  OK
-                </button>
-              </div>
-            </div>
-          )}
+function checkPassFromSettings() {
+  const input = document.getElementById('settingsPass').value.trim();
+  if (input === PASSWORD) {
+    localStorage.setItem(STORAGE_UNL,'1');
+    updateAllUseBadge();
+    showToast('🎉 解除しました！');
+    document.getElementById('settingsPass').value='';
+  } else {
+    showToast('❌ パスワードが違います');
+  }
+}
 
-          {/* クリア確認モーダル */}
-          {showClearConfirm && (
-            <div className="absolute inset-0 bg-gray-900 bg-opacity-60 flex items-center justify-center z-50 p-4">
-              <div className="bg-white rounded-2xl p-8 w-full max-w-sm shadow-2xl text-center transform transition-all">
-                <div className="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-red-100 mb-4">
-                  <AlertCircle className="h-10 w-10 text-red-600" />
-                </div>
-                <h3 className="text-2xl font-bold text-gray-800 mb-2">確認</h3>
-                <p className="text-lg text-gray-600 mb-8 leading-relaxed">
-                  本当にデモデータをクリアしますか？<br/>
-                  <span className="text-red-500 font-bold text-sm">※この操作は元に戻せません。</span>
-                </p>
-                <div className="flex space-x-4">
-                  <button 
-                    onClick={() => setShowClearConfirm(false)} 
-                    className="flex-1 bg-gray-200 text-gray-800 font-bold py-4 rounded-xl text-lg hover:bg-gray-300"
-                  >
-                    やめる
-                  </button>
-                  <button 
-                    onClick={handleClear} 
-                    className="flex-1 bg-red-600 text-white font-bold py-4 rounded-xl text-lg hover:bg-red-500 shadow-md"
-                  >
-                    クリアする
-                  </button>
-                </div>
-              </div>
-            </div>
-          )}
-        </div>
-      );
-    }
+function updateAllUseBadge() {
+  const uses = getUses();
+  const unlocked = isUnlocked();
+  const msg = unlocked
+    ? '✅ ご利用中（解除済み）'
+    : `無料で使えるのはあと ${FREE_LIMIT - uses} 回です`;
+  ['useBadge1','useBadge2','useBadge3'].forEach(id=>{
+    const el = document.getElementById(id);
+    if(el) el.innerHTML = `<span>${msg}</span>`;
+  });
+}
 
-    // 使い方画面
-    function HelpScreen({ onBack }) {
-      return (
-        <div className="p-6 h-full flex flex-col bg-gray-50 overflow-y-auto">
-          <div className="flex items-center mb-6">
-            <button onClick={onBack} className="mr-4 text-gray-600 p-2 bg-gray-200 rounded-full hover:bg-gray-300">
-              <ChevronLeft size={28} />
-            </button>
-            <h2 className="text-2xl font-bold text-gray-800">使い方</h2>
-          </div>
+/* ==============================
+   設定の読み書き
+============================== */
+function loadCfg() {
+  try { return JSON.parse(localStorage.getItem(STORAGE_CFG)||'{}'); } catch(e){ return {}; }
+}
 
-          <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-200 mb-6">
-            <h3 className="text-xl font-bold text-blue-800 mb-4 border-b-2 border-blue-100 pb-2">このアプリの目的</h3>
-            <p className="text-lg text-gray-700 leading-relaxed font-medium">
-              社長の毎日の負担を減らすためのアプリです。<br/><br/>
-              難しい機械の操作は一切必要ありません。<br/>
-              会社の状況をパッと把握し、頑張る社員への「ありがとう」を簡単に伝えることができます。
-            </p>
-          </div>
+function loadSettings() {
+  const cfg = loadCfg();
+  document.getElementById('companyName').value = cfg.company||'';
+  renderEmpSettingList(cfg.employees||[]);
+}
 
-          <div className="space-y-5">
-            <div className="bg-white p-5 rounded-2xl shadow-sm border-l-8 border-blue-500">
-              <div className="flex items-center mb-3">
-                <Volume2 className="text-blue-600 mr-3" size={28} />
-                <h4 className="text-xl font-bold text-gray-800">1. 声で頼む</h4>
-              </div>
-              <ul className="text-base text-gray-700 space-y-2 ml-1 leading-relaxed">
-                <li>・マイクのボタンを押して、スマホに話しかけます。</li>
-                <li>・もう一度押すと、話した言葉が文字に変わります。</li>
-                <li>・「送る」を押すだけで、事務所のパソコンに指示が届きます。</li>
-              </ul>
-            </div>
+function saveSettings() {
+  const company = document.getElementById('companyName').value.trim();
+  const rows    = document.querySelectorAll('.emp-setting-row');
+  const employees = [];
+  rows.forEach(row=>{
+    const name = row.querySelector('.emp-name-input').value.trim();
+    const role = row.querySelector('.emp-role-input').value.trim();
+    if (name) employees.push({name, role});
+  });
+  localStorage.setItem(STORAGE_CFG, JSON.stringify({company, employees}));
+  closeModal('settingsModal');
+  renderEmpList();
+  showToast('✅ 設定を保存しました');
+}
 
-            <div className="bg-white p-5 rounded-2xl shadow-sm border-l-8 border-green-500">
-              <div className="flex items-center mb-3">
-                <FileText className="text-green-600 mr-3" size={28} />
-                <h4 className="text-xl font-bold text-gray-800">2. 今月の報告</h4>
-              </div>
-              <ul className="text-base text-gray-700 space-y-2 ml-1 leading-relaxed">
-                <li>・楽一のデータから、今月の状況をAIが自動でまとめます。</li>
-                <li>・細かいグラフや表は見ず、短い言葉で大事なことだけを確認できます。</li>
-              </ul>
-            </div>
+function renderEmpSettingList(employees) {
+  const list = document.getElementById('empSettingList');
+  list.innerHTML = employees.map((emp,i)=>`
+    <div class="emp-setting-row">
+      <input type="text" class="emp-name-input" value="${esc(emp.name)}" placeholder="名前">
+      <input type="text" class="emp-role-input" value="${esc(emp.role||'')}" placeholder="役職">
+      <button class="btn-del-emp" onclick="delEmpRow(this)">×</button>
+    </div>`).join('');
+}
 
-            <div className="bg-white p-5 rounded-2xl shadow-sm border-l-8 border-orange-500">
-              <div className="flex items-center mb-3">
-                <Gift className="text-orange-600 mr-3" size={28} />
-                <h4 className="text-xl font-bold text-gray-800">3. ねぎらう</h4>
-              </div>
-              <ul className="text-base text-gray-700 space-y-2 ml-1 leading-relaxed">
-                <li>・頑張っている社員を選んで「ねぎらう」ボタンを押します。</li>
-                <li>・社長からの「ありがとう」というメッセージと、コーヒー1杯分のチケットが社員のスマホに届きます。</li>
-              </ul>
-            </div>
-          </div>
-          
-          <div className="mt-8 mb-4 text-center">
-            <button 
-              onClick={onBack}
-              className="bg-gray-800 text-white font-bold py-4 px-12 rounded-full text-lg shadow-md hover:bg-gray-700"
-            >
-              最初の画面に戻る
-            </button>
-          </div>
-        </div>
-      );
-    }
+function addEmpRow() {
+  const list = document.getElementById('empSettingList');
+  if (list.children.length >= 8) { showToast('最大8名まで登録できます'); return; }
+  const row = document.createElement('div');
+  row.className='emp-setting-row';
+  row.innerHTML=`
+    <input type="text" class="emp-name-input" placeholder="名前">
+    <input type="text" class="emp-role-input" placeholder="役職">
+    <button class="btn-del-emp" onclick="delEmpRow(this)">×</button>`;
+  list.appendChild(row);
+}
 
-    // Reactアプリの起動
-    const root = ReactDOM.createRoot(document.getElementById('root'));
-    root.render(<App />);
-  </script>
+function delEmpRow(btn) {
+  btn.closest('.emp-setting-row').remove();
+}
+
+/* ==============================
+   デモデータ・クリア
+============================== */
+function loadDemo() {
+  // 設定に会社名と社員を入れる
+  const demoConfig = {
+    company: '株式会社サンプル工業',
+    employees: [
+      {name:'佐藤 健太', role:'営業'},
+      {name:'鈴木 美咲', role:'事務'},
+      {name:'高橋 工務', role:'現場責任者'}
+    ]
+  };
+  localStorage.setItem(STORAGE_CFG, JSON.stringify(demoConfig));
+
+  // タブ1にデモテキストをセット
+  document.getElementById('consultText').value =
+    '給料を上げてあげたいんですが、先月は売上が良かったわりに手元のお金が少なくて不安です。消費税の支払いも近くて、どうしたらいいか悩んでいます。';
+
+  // タブ2にデモ数字をセット
+  document.getElementById('sales').value = '450';
+  document.getElementById('cost').value  = '380';
+  document.getElementById('numsMemo').value = '消費税の支払いが来月あるので手元資金が心配。賞与も出せるか確認したい。';
+
+  // タブ3を更新
+  renderEmpList();
+  loadSettings();
+  showToast('📋 デモデータをセットしました');
+}
+
+function clearAll() {
+  document.getElementById('consultText').value='';
+  document.getElementById('sales').value='';
+  document.getElementById('cost').value='';
+  document.getElementById('numsMemo').value='';
+  document.getElementById('thanksMemo').value='';
+  ['result1','result2','result3'].forEach(id=>{
+    document.getElementById(id).innerHTML='';
+  });
+  ['err1','err2','err3'].forEach(id=>{
+    document.getElementById(id).classList.remove('show');
+  });
+  selectedEmp=null;
+  document.getElementById('memoCard').style.display='none';
+  document.getElementById('thanksBtn').style.display='none';
+  renderEmpList();
+  showToast('🗑️ クリアしました');
+}
+
+function clearResult(resultId, ...inputIds) {
+  document.getElementById(resultId).innerHTML='';
+  inputIds.forEach(id=>{
+    const el = document.getElementById(id);
+    if(el) el.value='';
+  });
+}
+
+/* ==============================
+   UI ヘルパー
+============================== */
+function showLoading(targetId, msg='しばらくお待ちください…') {
+  document.getElementById(targetId).innerHTML = `
+    <div class="loading">
+      <div class="spinner"></div>
+      <p>${msg}</p>
+    </div>`;
+}
+
+function showErr(id, msg) {
+  const el=document.getElementById(id);
+  el.textContent=msg; el.classList.add('show');
+}
+function hideErr(id) { document.getElementById(id).classList.remove('show'); }
+
+function showToast(msg) {
+  const toast = document.getElementById('toast');
+  document.getElementById('toastMsg').textContent=msg;
+  toast.classList.add('show');
+  setTimeout(()=>toast.classList.remove('show'), 3000);
+}
+
+function openModal(id)  { document.getElementById(id).classList.add('show'); }
+function closeModal(id) { document.getElementById(id).classList.remove('show'); }
+function closeModalOutside(e, id) {
+  if (e.target===document.getElementById(id)) closeModal(id);
+}
+
+function esc(s='') {
+  return String(s)
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;').replace(/"/g,'&quot;')
+    .replace(/\n/g,'<br>');
+}
+
+function legacyCopy(text) {
+  const ta=document.createElement('textarea');
+  ta.value=text; document.body.appendChild(ta);
+  ta.select(); document.execCommand('copy');
+  document.body.removeChild(ta);
+}
+</script>
 </body>
 </html>
