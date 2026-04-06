@@ -86,7 +86,7 @@
     ============================== */
     .section-head {
       text-align: center;
-      padding-bottom: 4px;
+      padding-bottom: 36px; /* マイクボタンとの間隔をさらに広げました */
     }
     .section-head h2 { font-size: 20px; font-weight: 900; color: var(--text); }
     .section-head p  { font-size: 13px; color: var(--gray); margin-top: 5px; line-height: 1.7; }
@@ -113,7 +113,7 @@
     .mic-area {
       display: flex; flex-direction: column;
       align-items: center; gap: 14px;
-      padding: 10px 0;
+      padding: 16px 0 10px; /* 上側の余白を少し増やしました */
     }
     .mic-wrap { position: relative; display: flex; align-items: center; justify-content: center; }
     .ripple {
@@ -541,7 +541,7 @@
     <div class="tab-content active" id="tab1">
       <div class="section-head">
         <h2>今日、何か悩んでいますか？</h2>
-        <p>声で、または文字で話しかけてください。<br>AIがいっしょに整理します。</p>
+        <p>声で、または文字で話しかけてください。<br>相棒がいっしょに整理します。</p>
       </div>
 
       <!-- マイクボタン -->
@@ -581,7 +581,7 @@
           <path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"/>
           <path d="m9 12 2 2 4-4"/>
         </svg>
-        AIに相談する
+        相棒に相談する
       </button>
 
       <!-- エラー -->
@@ -595,7 +595,7 @@
     <div class="tab-content" id="tab2">
       <div class="section-head">
         <h2>今月の数字を確認する</h2>
-        <p>大まかな数字を入れるだけで大丈夫です。<br>AIが気になる点をお伝えします。</p>
+        <p>大まかな数字を入れるだけで大丈夫です。<br>相棒が気になる点をお伝えします。</p>
       </div>
 
       <div class="card">
@@ -631,7 +631,7 @@
           <rect x="2" y="3" width="20" height="14" rx="2"/>
           <path d="M8 21h8M12 17v4"/>
         </svg>
-        AIに診てもらう
+        相棒に診てもらう
       </button>
 
       <div class="err-box" id="err2"></div>
@@ -642,7 +642,7 @@
     <div class="tab-content" id="tab3">
       <div class="section-head">
         <h2>社員に「ありがとう」を届ける</h2>
-        <p>頑張っている社員を選んで送るだけ。<br>AIが社長らしい言葉を作ります。</p>
+        <p>頑張っている社員を選んで送るだけ。<br>相棒が社長らしい言葉を作ります。</p>
       </div>
 
       <!-- 社員リスト -->
@@ -718,9 +718,9 @@
     <div class="help-section">
       <div class="help-head"><span style="font-size:16px">🎯</span> このアプリでできること</div>
       <ul class="help-list">
-        <li>給料・税金・経費・売上など、ひとりで悩んでいることをAIに相談できます</li>
-        <li>大まかな売上と経費を入力するだけで、気になる点をAIが教えてくれます</li>
-        <li>社員への感謝メッセージをAIが作り、LINEでそのまま送れます</li>
+        <li>給料・税金・経費・売上など、ひとりで悩んでいることを相棒に相談できます</li>
+        <li>大まかな売上と経費を入力するだけで、気になる点を相棒が教えてくれます</li>
+        <li>社員への感謝メッセージを相棒が作り、LINEでそのまま送れます</li>
         <li>難しい操作はありません。話しかけるか、文字を入れるだけです</li>
       </ul>
     </div>
@@ -731,7 +731,7 @@
         <li>マイクボタンを押して、スマホに向かって悩みを話してください</li>
         <li>ボタンが赤くなったら録音中です。もう一度押すと止まります</li>
         <li>文字で入力しても同じように相談できます</li>
-        <li>「AIに相談する」を押すと、AIが3つの観点で整理して答えます</li>
+        <li>「相棒に相談する」を押すと、相棒が3つの観点で整理して答えます</li>
       </ul>
     </div>
 
@@ -740,7 +740,7 @@
       <ul class="help-list">
         <li>今月の売上と経費の大まかな金額を入力してください（概算で構いません）</li>
         <li>気になることがあれば、一言メモに書いてください</li>
-        <li>「AIに診てもらう」を押すと、資金繰りや節税の観点からコメントが届きます</li>
+        <li>「相棒に診てもらう」を押すと、資金繰りや節税の観点からコメントが届きます</li>
       </ul>
     </div>
 
@@ -749,7 +749,7 @@
       <ul class="help-list">
         <li>設定で登録した社員の名前をタップして選んでください</li>
         <li>頑張ってくれたことがあれば一言メモに書くとより温かいメッセージになります</li>
-        <li>AIがメッセージを作ったら内容を確認して、LINEで送るかコピーしてください</li>
+        <li>相棒がメッセージを作ったら内容を確認して、LINEで送るかコピーしてください</li>
       </ul>
     </div>
 
@@ -758,7 +758,7 @@
       <ul class="help-list">
         <li>音声入力はiPhoneのSafari、AndroidのChromeでご使用ください</li>
         <li>初回はマイクの許可を求める画面が出ます。「許可」を選んでください</li>
-        <li>AIの回答はあくまで参考情報です。重要な判断は専門家にご相談ください</li>
+        <li>相棒の回答はあくまで参考情報です。重要な判断は専門家にご相談ください</li>
       </ul>
     </div>
 
@@ -823,6 +823,32 @@
   </div>
 </div>
 
+<!-- ========== 管理者（販売店）設定モーダル ========== -->
+<div class="modal-overlay" id="adminModal" onclick="closeModalOutside(event,'adminModal')">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <p class="modal-title" style="color:var(--navy2)">🛠️ 販売店専用設定</p>
+
+    <div class="setting-group" style="margin-top: 20px;">
+      <label class="setting-label">LINE Notify トークン</label>
+      <input type="text" id="lineToken" placeholder="トークンを入力" style="font-size:14px">
+      <p style="font-size:11px; color:var(--gray); margin-top:4px;">※「声で相談」の内容を事務所のLINEへ飛ばすためのトークンです。</p>
+    </div>
+
+    <div class="setting-group" style="margin-top: 20px;">
+      <label class="setting-label">API サーバー URL</label>
+      <input type="text" id="workerUrl" placeholder="https://..." style="font-size:14px">
+      <p style="font-size:11px; color:var(--gray); margin-top:4px;">※通信先のCloudflare WorkersのURLです。</p>
+    </div>
+
+    <div style="margin-top: 36px; margin-bottom: 8px; text-align: center;">
+      <p style="font-size:12px; color:var(--red); font-weight:bold;">※この画面は社長様には見せないでください。</p>
+    </div>
+
+    <button class="modal-close" onclick="saveAdminSettings()">設定を保存</button>
+  </div>
+</div>
+
 <!-- ================================================================
      JavaScript
 ================================================================ -->
@@ -830,12 +856,13 @@
 /* ==============================
    ★ 設定（ここだけ変更する）
 ============================== */
-const WORKER_URL  = 'https://shacho-aibo.yymmatsu.workers.dev';  // CloudflareワーカーURL
-const PASSWORD    = 'spc2024';   // ← 解除パスワード（販売店で変更）
-const FREE_LIMIT  = 3;           // 無料使用回数
-const STORAGE_USE = 'shacho_uses';
-const STORAGE_UNL = 'shacho_unlocked';
-const STORAGE_CFG = 'shacho_config';
+const WORKER_URL     = 'https://shacho-aibo.yymmatsu.workers.dev';  // CloudflareワーカーURLの初期値
+const PASSWORD       = 'spc2024';  // ← 解除パスワード（社長用）
+const ADMIN_PASSWORD = 'admin';    // ← 裏メニューを開くための販売店用パスワード
+const FREE_LIMIT     = 3;          // 無料使用回数
+const STORAGE_USE    = 'shacho_uses';
+const STORAGE_UNL    = 'shacho_unlocked';
+const STORAGE_CFG    = 'shacho_config';
 
 /* ==============================
    状態変数
@@ -979,7 +1006,7 @@ async function submitConsult() {
     incrementUse();
     renderConsultResult(res);
   } catch(e) {
-    showErr('err1', 'AIとの通信でエラーが発生しました。しばらく経ってから再度お試しください。');
+    showErr('err1', '通信エラーが発生しました。しばらく経ってから再度お試しください。');
     document.getElementById('result1').innerHTML='';
   }
   updateAllUseBadge();
@@ -1050,7 +1077,7 @@ async function submitNumbers() {
     incrementUse();
     renderNumbersResult(res);
   } catch(e) {
-    showErr('err2','AIとの通信でエラーが発生しました。しばらく経ってから再度お試しください。');
+    showErr('err2','通信エラーが発生しました。しばらく経ってから再度お試しください。');
     document.getElementById('result2').innerHTML='';
   }
   updateAllUseBadge();
@@ -1075,7 +1102,7 @@ function renderNumbersResult(res) {
         </div>
       </div>` : ''}
       <div class="result-card navy">
-        <div class="result-head">🤖 AIからのコメント</div>
+        <div class="result-head">🤝 相棒からのコメント</div>
         <div class="result-body">${esc(res.diagnosis)}</div>
       </div>
       <button class="btn btn-sub" onclick="clearResult('result2','sales','cost','numsMemo')">
@@ -1149,7 +1176,7 @@ async function submitThanks() {
     incrementUse();
     renderThanksResult(res, emp.name);
   } catch(e) {
-    showErr('err3','AIとの通信でエラーが発生しました。しばらく経ってから再度お試しください。');
+    showErr('err3','通信エラーが発生しました。しばらく経ってから再度お試しください。');
     document.getElementById('result3').innerHTML='';
   }
   updateAllUseBadge();
@@ -1208,7 +1235,15 @@ function clearThanks() {
    API呼び出し
 ============================== */
 async function callWorker(endpoint, body) {
-  const res = await fetch(WORKER_URL + endpoint, {
+  // 保存されているURLがあればそれを使い、なければ初期値を使う
+  const cfg = loadCfg();
+  const baseUrl = cfg.workerUrl || WORKER_URL;
+
+  // ※「相談内容を事務所LINEへ飛ばす」機能が実装された場合、
+  // ここで cfg.lineToken を一緒に送信する形になります。
+  // body.lineToken = cfg.lineToken;
+
+  const res = await fetch(baseUrl + endpoint, {
     method:  'POST',
     headers: {'Content-Type':'application/json'},
     body:    JSON.stringify(body)
@@ -1218,7 +1253,7 @@ async function callWorker(endpoint, body) {
 }
 
 /* ==============================
-   無料回数管理
+   無料回数管理・パスワードチェック
 ============================== */
 function getUses()     { return parseInt(localStorage.getItem(STORAGE_USE)||'0'); }
 function incrementUse(){ localStorage.setItem(STORAGE_USE, getUses()+1); }
@@ -1245,11 +1280,23 @@ function checkPass() {
 
 function checkPassFromSettings() {
   const input = document.getElementById('settingsPass').value.trim();
+  
+  // ★裏メニュー（管理者モード）への分岐
+  if (input === ADMIN_PASSWORD) {
+    document.getElementById('settingsPass').value = '';
+    closeModal('settingsModal');
+    loadAdminSettings(); // 管理者設定の値を読み込む
+    openModal('adminModal');
+    showToast('🛠️ 販売店メニューを開きました');
+    return;
+  }
+
+  // 通常の制限解除パスワード
   if (input === PASSWORD) {
     localStorage.setItem(STORAGE_UNL,'1');
     updateAllUseBadge();
     showToast('🎉 解除しました！');
-    document.getElementById('settingsPass').value='';
+    document.getElementById('settingsPass').value = '';
   } else {
     showToast('❌ パスワードが違います');
   }
@@ -1268,7 +1315,7 @@ function updateAllUseBadge() {
 }
 
 /* ==============================
-   設定の読み書き
+   設定の読み書き（一般 ＆ 管理者）
 ============================== */
 function loadCfg() {
   try { return JSON.parse(localStorage.getItem(STORAGE_CFG)||'{}'); } catch(e){ return {}; }
@@ -1289,10 +1336,34 @@ function saveSettings() {
     const role = row.querySelector('.emp-role-input').value.trim();
     if (name) employees.push({name, role});
   });
-  localStorage.setItem(STORAGE_CFG, JSON.stringify({company, employees}));
+  
+  // 既存の管理者設定（lineTokenなど）を消さないようにマージして保存
+  const cfg = loadCfg();
+  cfg.company = company;
+  cfg.employees = employees;
+  
+  localStorage.setItem(STORAGE_CFG, JSON.stringify(cfg));
   closeModal('settingsModal');
   renderEmpList();
   showToast('✅ 設定を保存しました');
+}
+
+// ★管理者設定の読み込み
+function loadAdminSettings() {
+  const cfg = loadCfg();
+  document.getElementById('lineToken').value = cfg.lineToken || '';
+  document.getElementById('workerUrl').value = cfg.workerUrl || WORKER_URL;
+}
+
+// ★管理者設定の保存
+function saveAdminSettings() {
+  const cfg = loadCfg();
+  cfg.lineToken = document.getElementById('lineToken').value.trim();
+  cfg.workerUrl = document.getElementById('workerUrl').value.trim();
+  
+  localStorage.setItem(STORAGE_CFG, JSON.stringify(cfg));
+  closeModal('adminModal');
+  showToast('✅ 販売店設定を保存しました');
 }
 
 function renderEmpSettingList(employees) {
