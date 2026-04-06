@@ -261,6 +261,47 @@
     }
     .result-body { font-size: 15px; line-height: 1.8; color: var(--text); }
 
+    /* ==============================
+       案C：ひとこと先行アニメーション
+    ============================== */
+    .result-card-first {
+      border-radius: 18px; padding: 22px 20px;
+      background: linear-gradient(135deg, #1b3060 0%, #2d4f9e 100%);
+      box-shadow: 0 10px 36px rgba(27,48,96,0.38);
+      animation: popIn 0.55s cubic-bezier(0.34,1.56,0.64,1);
+    }
+    @keyframes popIn {
+      0%   { opacity: 0; transform: scale(0.82) translateY(20px); }
+      100% { opacity: 1; transform: scale(1)    translateY(0); }
+    }
+    .result-card-first .result-head {
+      font-size: 11px; font-weight: 700; color: rgba(255,255,255,0.65);
+      letter-spacing: 0.08em; margin-bottom: 10px;
+    }
+    .result-card-first .result-body {
+      font-size: 20px; font-weight: 700; line-height: 1.75; color: #fff;
+    }
+    .first-label-dot {
+      display: inline-block;
+      width: 7px; height: 7px; border-radius: 50%;
+      background: var(--gold2); margin-right: 6px;
+      animation: dotPulse 1.4s ease infinite;
+      vertical-align: middle;
+    }
+    @keyframes dotPulse {
+      0%,100% { opacity: 1; transform: scale(1); }
+      50%      { opacity: 0.5; transform: scale(0.7); }
+    }
+
+    /* 後続カード：下からフェードイン */
+    .result-card-sub {
+      opacity: 0; transform: translateY(16px);
+      transition: opacity 0.5s ease, transform 0.5s ease;
+    }
+    .result-card-sub.show {
+      opacity: 1; transform: translateY(0);
+    }
+
     /* メッセージプレビュー */
     .msg-preview {
       background: #fff9e6; border: 2px solid var(--gold);
@@ -283,7 +324,7 @@
       animation: spin 0.8s linear infinite;
     }
     @keyframes spin { to { transform: rotate(360deg); } }
-    .loading p { font-size: 14px; color: var(--gray); font-weight: 700; }
+    .loading p { font-size: 14px; color: var(--gray); font-weight: 700; transition: opacity 0.2s; }
 
     /* ==============================
        底部ナビ
@@ -887,7 +928,7 @@ async function submitConsult() {
   if (!checkUseLimit()) return;
 
   const cfg = loadCfg();
-  showLoading('result1','AIが整理しています…');
+  showLoading('result1','', true);
   hideErr('err1');
 
   try {
@@ -908,24 +949,40 @@ async function submitConsult() {
 
 function renderConsultResult(res) {
   const el = document.getElementById('result1');
+
+  // ① まず「ひとこと」カードだけドーンと表示
   el.innerHTML = `
-    <div class="result-area">
-      <div class="result-card green">
+    <div class="result-area" id="consultResultArea">
+      <div class="result-card-first">
+        <div class="result-head">
+          <span class="first-label-dot"></span>社長へのひとこと
+        </div>
+        <div class="result-body">${esc(res.message)}</div>
+      </div>
+      <div class="result-card green result-card-sub" id="subCard1">
         <div class="result-head">😊 まず状況を整理すると</div>
         <div class="result-body">${esc(res.summary)}</div>
       </div>
-      <div class="result-card yellow">
+      <div class="result-card yellow result-card-sub" id="subCard2">
         <div class="result-head">💡 気をつけるべきこと</div>
         <div class="result-body">${esc(res.caution)}</div>
       </div>
-      <div class="result-card navy">
-        <div class="result-head">🤝 社長へのひとこと</div>
-        <div class="result-body">${esc(res.message)}</div>
-      </div>
-      <button class="btn btn-sub" onclick="clearResult('result1','consultText')">
+      <button class="btn btn-sub result-card-sub" id="subCard3"
+        onclick="clearResult('result1','consultText')">
         別の相談をする
       </button>
     </div>`;
+
+  // ② 1.2秒後に後続カードをふわっと表示
+  setTimeout(() => {
+    document.getElementById('subCard1')?.classList.add('show');
+  }, 1200);
+  setTimeout(() => {
+    document.getElementById('subCard2')?.classList.add('show');
+  }, 1700);
+  setTimeout(() => {
+    document.getElementById('subCard3')?.classList.add('show');
+  }, 2100);
 }
 
 /* ==============================
@@ -1286,12 +1343,29 @@ function clearResult(resultId, ...inputIds) {
 /* ==============================
    UI ヘルパー
 ============================== */
-function showLoading(targetId, msg='しばらくお待ちください…') {
-  document.getElementById(targetId).innerHTML = `
-    <div class="loading">
-      <div class="spinner"></div>
-      <p>${msg}</p>
-    </div>`;
+function showLoading(targetId, msg='しばらくお待ちください…', rotating=false) {
+  const el = document.getElementById(targetId);
+  if (rotating) {
+    const msgs = [
+      '社長の悩みを読み込んでいます…',
+      '状況を整理しています…',
+      '気になる点を確認しています…',
+      '社長へのメッセージを考えています…'
+    ];
+    let idx = 0;
+    el.innerHTML = `<div class="loading"><div class="spinner"></div><p id="loadingMsg">${msgs[0]}</p></div>`;
+    el._timer = setInterval(() => {
+      idx = (idx + 1) % msgs.length;
+      const m = document.getElementById('loadingMsg');
+      if (m) { m.style.opacity='0'; setTimeout(()=>{ if(m){m.textContent=msgs[idx]; m.style.opacity='1';} },200); }
+    }, 1500);
+  } else {
+    el.innerHTML = `<div class="loading"><div class="spinner"></div><p>${msg}</p></div>`;
+  }
+}
+function stopLoading(targetId) {
+  const el = document.getElementById(targetId);
+  if (el?._timer) { clearInterval(el._timer); el._timer=null; }
 }
 
 function showErr(id, msg) {
